@@ -11,8 +11,8 @@ const {
   setLokiIsRunning,
   setLokiTestAttribute,
   populateLokiHelpers,
-} = require('@loki/browser');
-const { createReadyStateManager } = require('@loki/integration-core');
+} = require('../../browser/src');
+const { createReadyStateManager } = require('../../integration-core/src');
 
 const {
   TimeoutError,
@@ -22,7 +22,7 @@ const {
   withRetries,
   unwrapError,
   getAbsoluteURL,
-} = require('@loki/core');
+} = require('../../core/src');
 const presets = require('./presets.json');
 
 const RETRY_LOADING_STORIES_TIMEOUT = 10000;

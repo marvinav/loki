@@ -1,0 +1,42 @@
+# Cursor Project Rules for oblador/loki
+
+## Collaboration principles
+- Prefer minimal edits; do not reformat unrelated code.
+- Preserve existing indentation style and width.
+- Match surrounding code style and module patterns.
+- Use clear, high-verbosity variable and function names.
+
+## JavaScript/TypeScript
+- Target the existing language per file (JS across most packages). Do not convert languages unless asked.
+- Avoid introducing TypeScript types into JS files; keep JSDoc minimal unless requested.
+- Prefer early returns, shallow nesting, and explicit error handling.
+
+## Formatting & linting
+- Respect existing lint rules and Prettier configuration if present.
+- Wrap long lines thoughtfully; avoid collapsing multiline logic into one-liners.
+- Do not add comments for trivial code; add short comments only where non-obvious.
+
+## Git hygiene
+- Group related edits into a single commit per package when possible.
+- Use conventional-style commit messages if adding new features or fixes (e.g., `feat(loki-runner): ...`).
+
+## Assistant behavior in this repo
+- When exploring, prefer semantic code search first, then targeted exact searches.
+- Default to absolute paths when referencing files or running commands.
+- Before edits, check for existing helpers/utilities in the same package.
+- Keep public APIs stable; avoid breaking changes without migration guidance.
+- If unsure about behavior, check `README.md` and package `README`s under `packages/`.
+
+## Safety
+- Never commit large binaries; store test images only where existing patterns do.
+- Validate environment-dependent code paths (Docker, Chrome targets) behind feature flags or option checks.
+
+## Documentation
+- Update `README.md` or package-level docs when adding CLI flags or options.
+- Keep examples minimal and runnable.
+
+## Project direction
+- Make monoproject instead of monorepo.
+- Move all packages as files/folders of one project.
+- Remove unused packages which are not related to browser/chrome.app.
+- Do not use new third party dependencies.

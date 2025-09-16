@@ -6,8 +6,8 @@ const {
   getAbsoluteURL,
   getLocalIPAddress,
   createStaticServer,
-} = require('@loki/core');
-const { createChromeTarget } = require('@loki/target-chrome-core');
+} = require('../../core/src');
+const { createChromeTarget } = require('../target-chrome-core/src');
 
 function getStaticServerConfig(baseUrl) {
   let staticServerPath;

@@ -20,12 +20,8 @@
     "*.d.ts"
   ],
   "main": "src/index.web.js",
-  "react-native": "src/index.native.js",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@loki/integration-react-native": "^0.35.0"
   },
   "types": "./index.d.ts"
 }

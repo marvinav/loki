@@ -10,8 +10,8 @@ const {
   getAbsoluteURL,
   getLocalIPAddress,
   createStaticServer,
-} = require('@loki/core');
-const { createChromeTarget } = require('@loki/target-chrome-core');
+} = require('../../core/src');
+const { createChromeTarget } = require('../target-chrome-core/src');
 const { getNetworkHost } = require('./get-network-host');
 
 const getExecutor = (dockerWithSudo) => (dockerPath, args) => {
@@ -144,8 +144,7 @@ function createChromeDockerTarget({
           errorLogs.length !== 0
         ) {
           throw new ChromeError(
-            `Chrome failed to start with ${
-              errorLogs.length === 1 ? 'error' : 'errors'
+            `Chrome failed to start with ${errorLogs.length === 1 ? 'error' : 'errors'
             } ${errorLogs
               .map((e) => `"${e.toString('utf8').trim()}"`)
               .join(', ')}`
