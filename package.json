@@ -42,6 +42,7 @@
     ]
   },
   "dependencies": {
+    "async": "^3.2.4",
     "chrome-launcher": "0.15.2",
     "chrome-remote-interface": "^0.32.1",
     "debug": "^4.1.1",
@@ -50,6 +51,7 @@
     "fs-extra": "^9.1.0",
     "looks-same": "^4.0.0",
     "mime-types": "^2.1.35",
+    "ramda": "^0.31.3",
     "shelljs": "^0.8.3",
     "wait-port": "^1.1.0"
   },

@@ -6,8 +6,8 @@ const {
   getAbsoluteURL,
   getLocalIPAddress,
   createStaticServer,
-} = require('../../core/src');
-const { createChromeTarget } = require('../target-chrome-core/src');
+} = require('../core');
+const { createChromeTarget } = require('../target-chrome-core');
 
 function getStaticServerConfig(baseUrl) {
   let staticServerPath;

@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { ReferenceImageError } = require('../../../../core/src');
+const { ReferenceImageError } = require('../../../core');
 const { getImageDiffer } = require('./get-image-differ');
 const { getOutputPaths } = require('./get-output-paths');
 

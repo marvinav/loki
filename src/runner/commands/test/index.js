@@ -1,7 +1,7 @@
-const {
-  ReferenceImageError,
-} = require('../../core');
-const { warn, error, info } = require('../../console');
+const ramda = require('ramda');
+
+const { ReferenceImageError } = require('../../core');
+const { warn, error } = require('../../console');
 const getConfig = require('../../config');
 const parseOptions = require('./parse-options');
 const runTests = require('./run-tests');
@@ -15,7 +15,7 @@ async function test(args) {
   const matchesFilters = ({ target }, name) =>
     targetFilter.test(target) && configurationFilter.test(name);
 
-  const configurations = pickBy(matchesFilters, config.configurations);
+  const configurations = ramda.pickBy(matchesFilters, config.configurations);
 
   if (Object.keys(configurations).length === 0) {
     warn('No matching configurations');

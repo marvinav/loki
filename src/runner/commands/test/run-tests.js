@@ -1,28 +1,16 @@
 const fs = require('fs-extra');
 const path = require('path');
 const ciInfo = require('ci-info');
-const map = require('ramda/src/map');
-const groupBy = require('ramda/src/groupBy');
-const toPairs = require('ramda/src/toPairs');
-const fromPairs = require('ramda/src/fromPairs');
-const mapObjIndexed = require('ramda/src/mapObjIndexed');
-const { createChromeAppTarget } = require('../../../../target-chrome-app/src');
-const { createChromeDockerTarget } = require('../../../../target-chrome-docker/src');
-// const {
-//   createChromeAWSLambdaTarget,
-// } = require('../../../../target-chrome-aws-lambda/src');
-// const {
-//   createIOSSimulatorTarget,
-// } = require('../../../../target-native-ios-simulator/src');
-// const {
-//   createAndroidEmulatorTarget,
-// } = require('../../../../target-native-android-emulator/src');
+const ramda = require('ramda');
+
+const { groupBy, toPairs, fromPairs, mapObjIndexed, map } = ramda;
+
+const { createChromeAppTarget } = require('../../../target-chrome-app');
+
 const { die } = require('../../console');
-const createBaselineLimitedBatchBuilder = require('./create-baseline-limited-batch-builder');
 const testBatch = require('./test-batch');
 const { TaskRunner } = require('./task-runner');
 const {
-  renderInteractive,
   renderVerbose,
   renderNonInteractive,
   renderSilent,
@@ -41,13 +29,11 @@ const getRendererForOptions = (options) => {
   if (options.silent) {
     return renderSilent;
   }
-  if (options.verboseRenderer) {
-    return renderVerbose;
-  }
+
   if (ciInfo.isCI) {
     return renderNonInteractive;
   }
-  return renderInteractive;
+  return renderVerbose;
 };
 
 async function placeGitignore(pathsToIgnore) {
@@ -231,31 +217,6 @@ async function runTests(flatConfigurations, options) {
           options.chromeConcurrency,
           options.chromeTolerance
         );
-      }
-      case 'chrome.aws-lambda': {
-        throw new Error('chrome.aws-lambda target not available - package not found');
-      }
-      case 'chrome.docker': {
-        return getTargetTasks(
-          target,
-          createChromeDockerTarget({
-            baseUrl: options.reactUri,
-            chromeDockerImage: options.chromeDockerImage,
-            chromeFlags: options.chromeFlags,
-            dockerNet: options.dockerNet,
-            dockerWithSudo: options.dockerWithSudo,
-            chromeDockerWithoutSeccomp: options.chromeDockerWithoutSeccomp,
-          }),
-          configurations,
-          options.chromeConcurrency,
-          options.chromeTolerance
-        );
-      }
-      case 'ios.simulator': {
-        throw new Error('ios.simulator target not available - package not found');
-      }
-      case 'android.emulator': {
-        throw new Error('android.emulator target not available - package not found');
       }
       default: {
         return die(`Unknown target "${target}`);

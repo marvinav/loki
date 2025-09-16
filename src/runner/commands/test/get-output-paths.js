@@ -1,13 +1,5 @@
-const { slugify } = require('transliteration');
-
-const SLUGIFY_OPTIONS = {
-  lowercase: false,
-  separator: '_',
-  allowedChars: 'a-zA-Z0-9',
-};
-
 const defaultFileNameFormatter = ({ configurationName, kind, story }) =>
-  slugify(`${configurationName} ${kind} ${story}`, SLUGIFY_OPTIONS);
+  `${configurationName} ${kind} ${story}`;
 
 function getOutputPaths(options, configurationName, kind, story, parameters) {
   const getBaseName = options.fileNameFormatter || defaultFileNameFormatter;
