@@ -5,7 +5,6 @@ const {
   disablePointerEvents,
   getSelectorBoxSize,
   getStories,
-  getStorybookError,
   awaitLokiReady,
   awaitSelectorPresent,
   setLokiIsRunning,
@@ -58,7 +57,6 @@ function createChromeTarget(
       options.fetchFailIgnore && new RegExp(options.fetchFailIgnore, 'i');
     const client = await createNewDebuggerInstance();
     const deviceMetrics = getDeviceMetrics(options);
-
     const { Runtime, Page, Emulation, DOM, Network } = client;
 
     await Runtime.enable();
@@ -182,7 +180,7 @@ function createChromeTarget(
     };
 
     const ensureNoErrorPresent = async () => {
-      const errorMessage = await executeFunctionWithWindow(getStorybookError);
+      const errorMessage = await executeFunctionWithWindow();
       if (errorMessage) {
         throw new Error(`Failed to render with error "${errorMessage}"`);
       }
@@ -224,11 +222,8 @@ function createChromeTarget(
         }
       }
 
-      debug('Waiting for ensureNoErrorPresent...');
-      await ensureNoErrorPresent();
-
       debug('Waiting for awaitRequestsFinished...');
-      await awaitRequestsFinished();
+      // await awaitRequestsFinished();
 
       debug('Awaiting runtime setup');
       await executeFunctionWithWindow(setLokiTestAttribute);
@@ -341,9 +336,10 @@ function createChromeTarget(
 
   const launchStoriesTab = withTimeout(LOADING_STORIES_TIMEOUT)(
     withRetries(
-      5,
+      0,
       RETRY_LOADING_STORIES_TIMEOUT
     )(async (url) => {
+      console.log('start tab')
       const tab = await launchNewTab({
         width: 100,
         height: 100,
@@ -351,7 +347,10 @@ function createChromeTarget(
         clearBrowserCookies: false,
         fetchFailIgnore: '/__webpack_hmr',
       });
+      console.log('tab is loaded', tab != null, url);
+
       await tab.loadUrl(url);
+      console.log('url is loaded');
       return tab;
     })
   );
@@ -360,6 +359,7 @@ function createChromeTarget(
     const url = `${resolvedBaseUrl}/iframe.html`;
     try {
       const tab = await launchStoriesTab(url);
+
       return tab.executeFunctionWithWindow(getStories);
     } catch (rawError) {
       const error = unwrapError(rawError);

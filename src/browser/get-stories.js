@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-
 const getStories = async (window) => {
+  return [{ id: '32', kind: 'ds', story: 're', parameters: {} }];
   const getStorybook =
     (window.__STORYBOOK_CLIENT_API__ && window.__STORYBOOK_CLIENT_API__.raw) ||
     (window.__STORYBOOK_PREVIEW__ &&

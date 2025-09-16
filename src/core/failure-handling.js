@@ -33,30 +33,27 @@ const sleep = (duration) =>
 
 const withRetries =
   (maxRetries = 3, backoff = 0) =>
-  (fn) =>
-  async (...args) => {
-    let tries = 0;
-    let lastError;
-    while (tries <= maxRetries) {
-      tries++;
-      try {
-        const result = await fn(...args);
-        return result;
-      } catch (err) {
-        lastError = err;
-      }
-      if (backoff && tries <= maxRetries) {
-        await sleep(backoff);
-      }
-    }
-    if (tries === 1) {
-      throw lastError;
-    }
-    const message = lastError.message || lastError.toString();
-    const error = new Error(`Failed with "${message}" after ${tries} tries`);
-    error.originalError = lastError;
-    throw error;
-  };
+    (fn) =>
+      async (...args) => {
+        let tries = 0;
+        let lastError;
+        while (tries <= maxRetries) {
+          tries++;
+          try {
+            const result = await fn(...args);
+            return result;
+          } catch (err) {
+            lastError = err;
+          }
+          if (backoff && tries <= maxRetries) {
+            await sleep(backoff);
+          }
+        }
+        if (tries === 1) {
+          throw lastError;
+        }
+        throw lastError;
+      };
 
 function unwrapError(rawError) {
   let error = rawError;

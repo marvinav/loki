@@ -44,7 +44,7 @@ function parseOptions(args, config) {
     chromeEmulatedMedia: $('chromeEmulatedMedia'),
     skipStoriesPattern: $('skipStories'),
     storiesFilter: $('storiesFilter'),
-    diffingEngine: $('diffingEngine') || 'pixelmatch',
+    diffingEngine: $('diffingEngine') || 'looks-same',
     fetchFailIgnore: $('fetchFailIgnore'),
     'looks-same': $('looks-same'),
     gm: $('gm'),

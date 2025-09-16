@@ -45,7 +45,7 @@ function getStaticServerConfig(baseUrl) {
 function createChromeAppTarget({
   baseUrl = 'http://localhost:6006',
   useStaticServer = true,
-  chromeFlags = ['--headless', '--disable-gpu', '--hide-scrollbars'],
+  chromeFlags = ['--disable-gpu', '--hide-scrollbars'],
   cdpOptions = {},
 }) {
   let instance;

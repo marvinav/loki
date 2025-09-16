@@ -113,7 +113,10 @@ async function runTests(flatConfigurations, options) {
               type: TASK_TYPE_FETCH_STORIES,
             },
             task: async () => {
+              console.log('fetching stories', target);
+
               storybook = await target.getStorybook();
+
               if (storybook.length === 0 && !options.passWithNoStories) {
                 throw new Error('Error: No stories were found.');
               }
