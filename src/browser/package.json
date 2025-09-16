@@ -1,18 +1,18 @@
 {
-  "name": "@loki/core",
+  "name": "@loki/browser",
   "version": "0.35.0",
-  "description": "Loki Chrome target core lib",
+  "description": "Loki browser integration",
   "keywords": [
     "loki"
   ],
-  "homepage": "https://github.com/oblador/loki/tree/master/packages/core",
+  "homepage": "https://github.com/oblador/loki/tree/master/packages/browser",
   "bugs": {
     "url": "https://github.com/oblador/loki/issues"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/oblador/loki.git",
-    "directory": "packages/core"
+    "directory": "packages/browser"
   },
   "license": "MIT",
   "files": [
@@ -21,9 +21,5 @@
   "main": "src/index.js",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "mime-types": "^2.1.35",
-    "shelljs": "^0.8.3"
   }
 }

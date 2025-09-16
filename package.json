@@ -41,6 +41,18 @@
       "examples/running-renderer-aws-lambda"
     ]
   },
+  "dependencies": {
+    "chrome-launcher": "0.15.2",
+    "chrome-remote-interface": "^0.32.1",
+    "debug": "^4.1.1",
+    "execa": "^5.0.0",
+    "find-free-port-sync": "^1.0.0",
+    "fs-extra": "^9.1.0",
+    "looks-same": "^4.0.0",
+    "mime-types": "^2.1.35",
+    "shelljs": "^0.8.3",
+    "wait-port": "^1.1.0"
+  },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "babel-jest": "^27.5.1",

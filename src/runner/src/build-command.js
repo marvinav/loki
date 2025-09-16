@@ -1,4 +1,4 @@
-const { dependencyAvailable } = require('../../../core/src');
+const { dependencyAvailable } = require('../../core/src');
 
 const escapeShell = (str) => `"${str.replace(/(["\t\n\r$`\\])/g, '\\$1')}"`;
 
