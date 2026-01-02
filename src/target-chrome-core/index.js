@@ -1,3 +1,3 @@
-const createChromeTarget = require('./create-chrome-target');
+import { createChromeTarget } from './create-chrome-target.js';
 
-module.exports = { createChromeTarget };
+export { createChromeTarget };

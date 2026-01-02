@@ -1,15 +1,15 @@
-/* eslint-disable prefer-rest-params */
-const path = require('path');
+import path from 'path';
 
-class LokiError extends Error {
+export class LokiError extends Error {
   constructor(message, errorType, originalArgs) {
     super(message);
     this.name = errorType;
     this.originalArgs = Array.from(originalArgs);
   }
+  instructions;
 }
 
-class ReferenceImageError extends LokiError {
+export class ReferenceImageError extends LokiError {
   constructor(message, kind, story) {
     super(message, 'ReferenceImageError', arguments);
     this.kind = kind;
@@ -17,7 +17,7 @@ class ReferenceImageError extends LokiError {
   }
 }
 
-class TimeoutError extends LokiError {
+export class TimeoutError extends LokiError {
   constructor(duration, operationName = 'Operation') {
     super(
       `${operationName} timed out after ${duration}ms`,
@@ -27,7 +27,7 @@ class TimeoutError extends LokiError {
   }
 }
 
-class MissingDependencyError extends LokiError {
+export class MissingDependencyError extends LokiError {
   constructor(dependencyName, instructions) {
     super(
       `${dependencyName} is not installed`,
@@ -38,19 +38,18 @@ class MissingDependencyError extends LokiError {
   }
 }
 
-class ServerError extends LokiError {
+export class ServerError extends LokiError {
   constructor(message, instructions) {
     super(message, 'ServerError', arguments);
     this.instructions = instructions;
   }
 }
 
-class FetchingURLsError extends LokiError {
+export class FetchingURLsError extends LokiError {
   constructor(failedURLs) {
     const noun = failedURLs.length === 1 ? 'request' : 'requests';
-    const message = `${
-      failedURLs.length
-    } ${noun} failed to load; ${failedURLs.join(', ')}`;
+    const message = `${failedURLs.length
+      } ${noun} failed to load; ${failedURLs.join(', ')}`;
     super(message, 'FetchingURLsError', arguments);
     this.failedURLs = failedURLs;
   }
@@ -63,7 +62,7 @@ function formatStackTraceLine({ file, methodName, lineNumber, column }) {
   )}:${lineNumber}:${column})`;
 }
 
-class NativeError extends LokiError {
+export class NativeError extends LokiError {
   constructor(message, stack, isFatal = true) {
     super(message, 'NativeError', arguments);
     this.rawStack = stack;
@@ -72,14 +71,14 @@ class NativeError extends LokiError {
   }
 }
 
-class ChromeError extends LokiError {
+export class ChromeError extends LokiError {
   constructor(message, instructions) {
     super(message, 'ChromeError', arguments);
     this.instructions = instructions;
   }
 }
 
-const serializeError = (error) =>
+export const serializeError = (error) =>
   JSON.stringify({
     isSerializedError: true,
     type: error instanceof LokiError ? error.name : 'Error',
@@ -96,7 +95,7 @@ const errorTypes = {
   ChromeError,
 };
 
-const parseError = (jsonString) => {
+export const parseError = (jsonString) => {
   if (typeof jsonString !== 'string') {
     return jsonString;
   }
@@ -111,11 +110,4 @@ const parseError = (jsonString) => {
   }
   const ErrorClass = errorTypes[jsonObject.type] || Error;
   return new ErrorClass(...jsonObject.args);
-};
-
-module.exports = {
-  serializeError,
-  parseError,
-  LokiError,
-  ...errorTypes,
 };

@@ -1,4 +1,4 @@
-const path = require('path');
+import path from 'path';
 
 const getAbsoluteURL = (url) => {
   if (url && url.indexOf('file:') === 0) {
@@ -7,4 +7,4 @@ const getAbsoluteURL = (url) => {
   return url;
 };
 
-module.exports = getAbsoluteURL;
+export default getAbsoluteURL;

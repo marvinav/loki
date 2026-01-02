@@ -1,15 +1,5 @@
-const errors = require('./errors');
-const failureHandling = require('./failure-handling');
-const getAbsoluteURL = require('./get-absolute-url');
-const { getLocalIPAddress } = require('./get-local-ip-address');
-const { createStaticServer } = require('./create-static-server');
-
-module.exports = Object.assign(
-  {
-    getAbsoluteURL,
-    getLocalIPAddress,
-    createStaticServer,
-  },
-  errors,
-  failureHandling,
-);
+export * from './errors.js';
+export * from './failure-handling.js';
+export * from './get-absolute-url.js';
+export * from './get-local-ip-address.js';
+export { createStaticServer } from './create-static-server.js';

@@ -1,21 +1,18 @@
-const fs = require('fs-extra');
-const path = require('path');
-const ciInfo = require('ci-info');
-const ramda = require('ramda');
+import fs from 'fs-extra';
+import path from 'path';
+import ciInfo from 'ci-info';
+import * as ramda from 'ramda';
+import { createChromeAppTarget } from '../../../target-chrome-app/index.js';
 
-const { groupBy, toPairs, fromPairs, mapObjIndexed, map } = ramda;
-
-const { createChromeAppTarget } = require('../../../target-chrome-app');
-
-const { die } = require('../../console');
-const testBatch = require('./test-batch');
-const { TaskRunner } = require('./task-runner');
-const {
+import { die } from '../../console.js';
+import testBatch from './test-batch.js';
+import { TaskRunner } from './task-runner.js';
+import {
   renderVerbose,
   renderNonInteractive,
   renderSilent,
-} = require('./renderers');
-const {
+} from './renderers/index.js';
+import {
   TASK_TYPE_TARGET,
   TASK_TYPE_PREPARE,
   TASK_TYPE_START,
@@ -23,7 +20,9 @@ const {
   TASK_TYPE_TESTS,
   TASK_TYPE_TEST,
   TASK_TYPE_STOP,
-} = require('./constants');
+} from './constants.js';
+
+const { groupBy, toPairs, fromPairs, mapObjIndexed, map } = ramda;
 
 const getRendererForOptions = (options) => {
   if (options.silent) {
@@ -245,4 +244,4 @@ async function runTests(flatConfigurations, options) {
   }
 }
 
-module.exports = runTests;
+export default runTests;

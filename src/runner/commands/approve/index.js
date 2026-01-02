@@ -1,10 +1,10 @@
 /* eslint-disable global-require, import/no-dynamic-require */
 
-const fs = require('fs-extra');
-const path = require('path');
-const { die } = require('../../console');
-const parseOptions = require('./parse-options');
-const getConfig = require('../../config');
+import fs from 'fs-extra';
+import path from 'path';
+import { die } from '../../console.js';
+import parseOptions from './parse-options.js';
+import getConfig from '../../config/index.js';
 
 const isPNG = (file) => file.substr(-4) === '.png';
 
@@ -49,4 +49,4 @@ function approve(args) {
   );
 }
 
-module.exports = approve;
+export default approve;

@@ -1,8 +1,8 @@
-const React = require('react');
-const importJsx = require('import-jsx');
-const { EVENT_CHANGE, EVENT_END } = require('../../task-runner');
+import React from 'react';
+import importJsx from 'import-jsx';
+import { EVENT_CHANGE, EVENT_END } from '../../task-runner.js';
 
-const TaskList = importJsx('./TaskList');
+const TaskList = importJsx('./TaskList.js');
 
 const throttle = (fn, threshold = 16) => {
   let throttled = false;
@@ -70,4 +70,4 @@ class App extends React.Component {
   }
 }
 
-module.exports = App;
+export default App;

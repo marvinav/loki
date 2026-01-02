@@ -1,9 +1,8 @@
-const { warn } = require('../console');
-const getDefaults = require('./get-defaults');
-const {
+import getDefaults from './get-defaults.js';
+import {
   getProjectPackage,
   isReactNativeProject,
-} = require('./project-package');
+} from './project-package.js';
 
 function getConfig() {
 
@@ -21,4 +20,4 @@ function getConfig() {
   return config;
 }
 
-module.exports = getConfig;
+export default getConfig;

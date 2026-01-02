@@ -1,4 +1,4 @@
-const getAbsoluteURL = require('./get-absolute-url');
+import getAbsoluteURL from './get-absolute-url.js';
 
 describe('getAbsoluteURL', () => {
   it('returns absolute file: URLs untouched', () => {

@@ -1,9 +1,9 @@
-const fs = require('fs-extra');
-const { getImageDiffer } = require('./get-image-differ');
-const compareScreenshot = require('./compare-screenshot');
+import fs from 'fs-extra';
+import { getImageDiffer } from './get-image-differ.js';
+import compareScreenshot from './compare-screenshot.js';
 
 jest.mock('fs-extra');
-jest.mock('./get-image-differ');
+jest.mock('./get-image-differ.js');
 
 const MOCK_SCREENSHOT = 'mock-screenshot';
 

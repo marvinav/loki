@@ -28,4 +28,4 @@ function createReadyStateManager() {
   };
 }
 
-module.exports = createReadyStateManager;
+export default createReadyStateManager;

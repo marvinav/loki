@@ -1,4 +1,4 @@
-const { TimeoutError } = require('./errors');
+import { TimeoutError } from './errors.js';
 
 const withTimeout = (timeout, operationName) => (fnOrPromise) => {
   const awaitPromise = (promise) =>
@@ -66,4 +66,4 @@ function unwrapError(rawError) {
   return error;
 }
 
-module.exports = { withTimeout, withRetries, unwrapError };
+export { withTimeout, withRetries, unwrapError };

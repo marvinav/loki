@@ -1,23 +1,23 @@
-const React = require('react');
-const importJsx = require('import-jsx');
-const { Static, Box } = require('ink');
-const {
+import React from 'react';
+import importJsx from 'import-jsx';
+import { Static, Box } from 'ink';
+import {
   STATUS_NOT_STARTED,
   STATUS_RUNNING,
   STATUS_SUCCEEDED,
   STATUS_FAILED,
-} = require('../../task-runner');
-const {
+} from '../../task-runner.js';
+import {
   TASK_TYPE_PREPARE,
   TASK_TYPE_START,
   TASK_TYPE_FETCH_STORIES,
   TASK_TYPE_TESTS,
   TASK_TYPE_TEST,
   TASK_TYPE_STOP,
-} = require('../../constants');
+} from '../../constants.js';
 
-const Task = importJsx('./Task');
-const FailedTest = importJsx('./FailedTest');
+const Task = importJsx('./Task.js');
+const FailedTest = importJsx('./FailedTest.js');
 
 const collectRecursively = (predicate, tasks, collection = []) => {
   for (let i = 0; i < tasks.length; i++) {
@@ -71,6 +71,7 @@ const TARGET_TASK_TITLE_MAP = {
   [TASK_TYPE_TESTS]: 'Running tests',
   [TASK_TYPE_STOP]: 'Stopping',
 };
+
 const TargetTask = ({ status, target, tasks }) => {
   const currentTask =
     tasks &&
@@ -85,9 +86,8 @@ const TargetTask = ({ status, target, tasks }) => {
     <React.Fragment>
       <Task
         status={status}
-        title={`${target}${
-          status !== STATUS_FAILED && taskTitle ? `: ${taskTitle}` : ''
-        }`}
+        title={`${target}${status !== STATUS_FAILED && taskTitle ? `: ${taskTitle}` : ''
+          }`}
       />
       {failedTasks.map((task) => (
         <FailedTest
@@ -165,4 +165,4 @@ const TaskList = ({ tasks }) => {
   );
 };
 
-module.exports = TaskList;
+export default TaskList;

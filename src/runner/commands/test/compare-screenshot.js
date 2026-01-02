@@ -1,8 +1,8 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { ReferenceImageError } = require('../../../core');
-const { getImageDiffer } = require('./get-image-differ');
-const { getOutputPaths } = require('./get-output-paths');
+import fs from 'fs-extra';
+import path from 'path';
+import { ReferenceImageError } from '../../../core/index.js';
+import { getImageDiffer } from './get-image-differ.js';
+import { getOutputPaths } from './get-output-paths.js';
 
 async function compareScreenshot(
   screenshot,
@@ -54,4 +54,4 @@ async function compareScreenshot(
   }
 }
 
-module.exports = compareScreenshot;
+export default compareScreenshot;

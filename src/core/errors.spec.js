@@ -1,4 +1,4 @@
-const { ChromeError, serializeError, parseError } = require('./errors');
+import { ChromeError, serializeError, parseError } from './errors.js';
 
 describe('ChromeError', () => {
   it('is an instance of Error', () => {

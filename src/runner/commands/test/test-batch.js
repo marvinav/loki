@@ -1,4 +1,4 @@
-const compareScreenshot = require('./compare-screenshot');
+import compareScreenshot from './compare-screenshot.js';
 
 function testBatch(target, batch, options, tolerance) {
   if (target.captureScreenshotsForStories) {
@@ -63,4 +63,4 @@ function testBatch(target, batch, options, tolerance) {
   );
 }
 
-module.exports = testBatch;
+export default testBatch;

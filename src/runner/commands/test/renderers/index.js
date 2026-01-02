@@ -1,9 +1,5 @@
-const { renderVerbose } = require('./verbose');
-const { renderNonInteractive } = require('./non-interactive');
-const { renderSilent } = require('./silent');
+import { renderVerbose } from './verbose.js';
+import { renderNonInteractive } from './non-interactive.js';
+import { renderSilent } from './silent.js';
 
-module.exports = {
-  renderVerbose,
-  renderSilent,
-  renderNonInteractive,
-};
+export { renderVerbose, renderSilent, renderNonInteractive };

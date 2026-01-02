@@ -1,3 +1,3 @@
-const createLooksSameDiffer = require('./create-looks-same-differ');
+import createLooksSameDiffer from './create-looks-same-differ.js';
 
-module.exports = { createLooksSameDiffer };
+export { createLooksSameDiffer };

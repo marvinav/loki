@@ -1,5 +1,5 @@
-const fs = require('fs');
-const { getOutputPaths } = require('./get-output-paths');
+import fs from 'fs';
+import { getOutputPaths } from './get-output-paths.js';
 
 const LAMBDA_PAYLOAD_LIMIT = 6291556; // in bytes
 const BASE64_ENCODING_OVERHEAD = 4 / 3;
@@ -47,4 +47,4 @@ const createBaselineLimitedBatchBuilder =
     return batches;
   };
 
-module.exports = createBaselineLimitedBatchBuilder;
+export default createBaselineLimitedBatchBuilder;

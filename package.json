@@ -2,7 +2,7 @@
   "name": "@loki/root",
   "version": "0.18.1",
   "description": "Visual Regression Testing for react-storybook",
-  "main": "index.js",
+  "type": "module",
   "private": true,
   "bin": {
     "loki": "bin/loki"
@@ -10,8 +10,7 @@
   "scripts": {
     "format": "prettier '{,packages/**/,examples/**/,website/**/,docs/**/,test/**/,.github/**/}*.{md,js,jsx,json,yml}' --write",
     "lint": "eslint packages/*/src",
-    "pretest": "cd examples/running-renderer-aws-lambda && yarn build && yarn start",
-    "test": "jest",
+    "test": "node ./dist/index.js --reactUri file:./test",
     "test-ci": "jest --testLocationInResults --ci --outputFile=test_results.json --json",
     "publish-docs": "GIT_USER=oblador yarn workspace @loki/website publish-gh-pages"
   },
@@ -56,9 +55,10 @@
     "wait-port": "^1.1.0"
   },
   "devDependencies": {
+    "@types/node": "^24.5.2",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^27.5.1",
-    "eslint": "7.19.0",
+    "eslint": "^7.19.0",
     "eslint-config-airbnb": "18.2.1",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-import": "^2.22.1",
@@ -69,7 +69,8 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^27.5.1",
     "lerna": "^3.22.1",
-    "prettier": "^2.6.1"
+    "prettier": "^2.6.1",
+    "tsx": "^4.20.5"
   },
   "resolutions": {
     "chokidar": "^3.5.3"

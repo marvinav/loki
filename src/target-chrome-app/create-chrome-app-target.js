@@ -1,13 +1,15 @@
-const debug = require('debug')('loki:chrome:app');
-const chromeLauncher = require('chrome-launcher');
-const CDP = require('chrome-remote-interface');
-const getRandomPort = require('find-free-port-sync');
-const {
+import createDebug from 'debug';
+import chromeLauncher from 'chrome-launcher';
+import CDP from 'chrome-remote-interface';
+import getRandomPort from 'find-free-port-sync';
+import {
   getAbsoluteURL,
   getLocalIPAddress,
   createStaticServer,
-} = require('../core');
-const { createChromeTarget } = require('../target-chrome-core');
+} from '../core/index.js';
+import { createChromeTarget } from '../target-chrome-core/index.js';
+
+const debug = createDebug('loki:chrome:app');
 
 function getStaticServerConfig(baseUrl) {
   let staticServerPath;
@@ -109,4 +111,4 @@ function createChromeAppTarget({
   );
 }
 
-module.exports = createChromeAppTarget;
+export default createChromeAppTarget;

@@ -1,3 +1,3 @@
-const createChromeAppTarget = require('./create-chrome-app-target');
+import createChromeAppTarget from './create-chrome-app-target.js';
 
-module.exports = { createChromeAppTarget };
+export { createChromeAppTarget };

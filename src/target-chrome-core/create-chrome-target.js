@@ -1,5 +1,5 @@
-const debug = require('debug')('loki:chrome');
-const {
+import createDebug from 'debug';
+import {
   disableAnimations,
   disableInputCaret,
   disablePointerEvents,
@@ -10,10 +10,10 @@ const {
   setLokiIsRunning,
   setLokiTestAttribute,
   populateLokiHelpers,
-} = require('../browser');
-const { createReadyStateManager } = require('../integration-core');
+} from '../browser/index.js';
+import { createReadyStateManager } from '../integration-core/index.js';
 
-const {
+import {
   TimeoutError,
   FetchingURLsError,
   ServerError,
@@ -21,8 +21,10 @@ const {
   withRetries,
   unwrapError,
   getAbsoluteURL,
-} = require('../core');
-const presets = require('./presets.json');
+} from '../core/index.js';
+import presets from './presets.json' with {type: 'json'};
+
+const debug = createDebug('loki:chrome');
 
 const RETRY_LOADING_STORIES_TIMEOUT = 10000;
 const LOADING_STORIES_TIMEOUT = 60000;
@@ -430,4 +432,4 @@ function createChromeTarget(
   };
 }
 
-module.exports = createChromeTarget;
+export { createChromeTarget };

@@ -1,6 +1,6 @@
-const os = require('os');
+import os from 'os';
 
-const getLocalIPAddress = () => {
+export const getLocalIPAddress = () => {
   const interfaces = os.networkInterfaces();
   const ips = Object.keys(interfaces)
     .map((key) =>
@@ -11,5 +11,3 @@ const getLocalIPAddress = () => {
     .reduce((acc, current) => acc.concat(current), []);
   return ips[0];
 };
-
-module.exports = { getLocalIPAddress };

@@ -4,7 +4,7 @@
 
 /* eslint-env browser */
 
-const getSelectorBoxSize = require('./get-selector-box-size');
+import getSelectorBoxSize from './get-selector-box-size.js';
 
 const addElementsToWrapper = (rects, customMarkup = (w) => w) => {
   let wrapper = document.querySelector('#root');

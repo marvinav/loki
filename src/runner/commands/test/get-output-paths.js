@@ -1,7 +1,13 @@
-const defaultFileNameFormatter = ({ configurationName, kind, story }) =>
+export const defaultFileNameFormatter = ({ configurationName, kind, story }) =>
   `${configurationName} ${kind} ${story}`;
 
-function getOutputPaths(options, configurationName, kind, story, parameters) {
+export function getOutputPaths(
+  options,
+  configurationName,
+  kind,
+  story,
+  parameters
+) {
   const getBaseName = options.fileNameFormatter || defaultFileNameFormatter;
   const basename = getBaseName({ configurationName, kind, story, parameters });
   const filename = `${basename}.png`;
@@ -11,5 +17,3 @@ function getOutputPaths(options, configurationName, kind, story, parameters) {
 
   return { outputPath, referencePath, diffPath };
 }
-
-module.exports = { defaultFileNameFormatter, getOutputPaths };

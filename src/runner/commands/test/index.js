@@ -1,10 +1,10 @@
-const ramda = require('ramda');
+import * as ramda from 'ramda';
 
-const { ReferenceImageError } = require('../../core');
-const { warn, error } = require('../../console');
-const getConfig = require('../../config');
-const parseOptions = require('./parse-options');
-const runTests = require('./run-tests');
+import { ReferenceImageError } from '../../core/index.js';
+import { warn, error } from '../../console.js';
+import getConfig from '../../config/index.js';
+import parseOptions from './parse-options.js';
+import runTests from './run-tests.js';
 
 async function test(args) {
   const config = getConfig();
@@ -40,4 +40,4 @@ async function test(args) {
   }
 }
 
-module.exports = test;
+export default test;

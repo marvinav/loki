@@ -1,5 +1,5 @@
 /* eslint-disable prefer-rest-params */
-const path = require('path');
+import path from 'path';
 
 class LokiError extends Error {
   constructor(message, errorType, originalArgs) {
@@ -113,9 +113,15 @@ const parseError = (jsonString) => {
   return new ErrorClass(...jsonObject.args);
 };
 
-module.exports = {
+export {
   serializeError,
   parseError,
   LokiError,
-  ...errorTypes,
+  ReferenceImageError,
+  TimeoutError,
+  MissingDependencyError,
+  FetchingURLsError,
+  ServerError,
+  NativeError,
+  ChromeError,
 };

@@ -1,7 +1,7 @@
-const path = require('path');
-const minimist = require('minimist');
-const ciInfo = require('ci-info');
-const defaults = require('./default-options.json');
+import path from 'path';
+import minimist from 'minimist';
+import ciInfo from 'ci-info';
+import defaults from './default-options.json' with { type: "json" };;
 
 function parseOptions(args, config) {
   const argv = minimist(args, {
@@ -62,4 +62,4 @@ function parseOptions(args, config) {
   };
 }
 
-module.exports = parseOptions;
+export default parseOptions;

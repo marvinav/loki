@@ -1,5 +1,8 @@
-const createReadyStateManager = require('./create-ready-state-manager');
+import createReadyStateManager from './create-ready-state-manager.js';
 
-module.exports = Object.assign({
+const integrationCore = {
   createReadyStateManager,
-});
+};
+
+export default integrationCore;
+export { createReadyStateManager };

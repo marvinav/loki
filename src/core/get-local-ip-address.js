@@ -1,4 +1,4 @@
-const os = require('os');
+import os from 'os';
 
 const getLocalIPAddress = () => {
   const interfaces = os.networkInterfaces();
@@ -12,4 +12,4 @@ const getLocalIPAddress = () => {
   return ips[0];
 };
 
-module.exports = { getLocalIPAddress };
+export { getLocalIPAddress };

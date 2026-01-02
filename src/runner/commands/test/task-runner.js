@@ -1,5 +1,5 @@
-const EventEmitter = require('events');
-const eachOfLimit = require('async/eachOfLimit');
+import { EventEmitter } from 'node:events';
+import eachOfLimit from 'async/eachOfLimit.js';
 
 const STATUS_NOT_STARTED = 'NOT_STARTED';
 const STATUS_RUNNING = 'RUNNING';
@@ -152,7 +152,7 @@ class TaskRunner extends EventEmitter {
   }
 }
 
-module.exports = {
+export {
   STATUS_NOT_STARTED,
   STATUS_RUNNING,
   STATUS_SUCCEEDED,

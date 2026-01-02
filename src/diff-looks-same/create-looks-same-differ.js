@@ -1,5 +1,5 @@
-const fs = require('fs-extra');
-const looksSame = require('looks-same');
+import fs from 'fs-extra';
+import looksSame from 'looks-same';
 
 function createLooksSameDiffer(config) {
   return function getImageDiff(path1, path2, diffPath, tolerance) {
@@ -47,4 +47,4 @@ function createLooksSameDiffer(config) {
   };
 }
 
-module.exports = createLooksSameDiffer;
+export default createLooksSameDiffer;

@@ -1,15 +1,15 @@
-const awaitLokiReady = require('./await-loki-ready');
-const awaitSelectorPresent = require('./await-selector-present');
-const disableAnimations = require('./disable-animations');
-const disableInputCaret = require('./disable-input-caret');
-const disablePointerEvents = require('./disable-pointer-events');
-const getSelectorBoxSize = require('./get-selector-box-size');
-const getStories = require('./get-stories');
-const populateLokiHelpers = require('./populate-loki-helpers');
-const setLokiIsRunning = require('./set-loki-is-running');
-const setLokiTestAttribute = require('./set-loki-test-attribute');
+import awaitLokiReady from './await-loki-ready.js';
+import awaitSelectorPresent from './await-selector-present.js';
+import disableAnimations from './disable-animations.js';
+import disableInputCaret from './disable-input-caret.js';
+import disablePointerEvents from './disable-pointer-events.js';
+import getSelectorBoxSize from './get-selector-box-size.js';
+import getStories from './get-stories.js';
+import populateLokiHelpers from './populate-loki-helpers.js';
+import setLokiIsRunning from './set-loki-is-running.js';
+import setLokiTestAttribute from './set-loki-test-attribute.js';
 
-module.exports = {
+export {
   awaitLokiReady,
   awaitSelectorPresent,
   disableAnimations,

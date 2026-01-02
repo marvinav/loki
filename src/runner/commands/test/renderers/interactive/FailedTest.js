@@ -1,5 +1,5 @@
-const React = require('react');
-const { Box, Text } = require('ink');
+import React from 'react';
+import { Box, Text } from 'ink';
 
 const FailedTest = ({ title, error }) => (
   <Box marginLeft={7} flexDirection="column">
@@ -9,4 +9,4 @@ const FailedTest = ({ title, error }) => (
   </Box>
 );
 
-module.exports = FailedTest;
+export default FailedTest;

@@ -1,8 +1,8 @@
 /* eslint-disable consistent-return */
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const mime = require('mime-types');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import mime from 'mime-types';
 
 async function sendFile(res, filePath) {
   const file = await fs.promises.open(filePath, 'r');
@@ -52,4 +52,4 @@ const createStaticServer = (dir) =>
     }
   });
 
-module.exports = { createStaticServer };
+export { createStaticServer };

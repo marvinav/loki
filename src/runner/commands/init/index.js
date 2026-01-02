@@ -1,13 +1,13 @@
-const fs = require('fs-extra');
-const path = require('path');
-const minimist = require('minimist');
-const { warn, die, info } = require('../../console');
-const getDefaults = require('../../config/get-defaults');
-const {
+import fs from 'fs-extra';
+import path from 'path';
+import minimist from 'minimist';
+import { warn, die, info } from '../../console.js';
+import getDefaults from '../../config/get-defaults.js';
+import {
   getProjectPackagePath,
   getProjectPackage,
   hasReactNativeDependency,
-} = require('../../config/project-package');
+} from '../../config/project-package.js';
 
 const insertAfter = (
   content,
@@ -88,4 +88,4 @@ function init(args) {
   }
 }
 
-module.exports = init;
+export default init;

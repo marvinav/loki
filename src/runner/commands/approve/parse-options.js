@@ -1,6 +1,6 @@
-const path = require('path');
-const minimist = require('minimist');
-const defaults = require('../test/default-options.json');
+import path from 'path';
+import minimist from 'minimist';
+import defaults from '../test/default-options.json' with { type: 'json' };
 
 function parseOptions(args, config) {
   const argv = minimist(args, { boolean: 'diffOnly' });
@@ -16,4 +16,4 @@ function parseOptions(args, config) {
   };
 }
 
-module.exports = parseOptions;
+export default parseOptions;

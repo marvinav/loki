@@ -1,4 +1,4 @@
-const { dependencyAvailable } = require('../../core/src');
+import { dependencyAvailable } from '../core/index.js';
 
 const escapeShell = (str) => `"${str.replace(/(["\t\n\r$`\\])/g, '\\$1')}"`;
 
@@ -30,4 +30,4 @@ function buildCommand(command, argObject) {
   return `./node_modules/.bin/loki ${command} ${args}`;
 }
 
-module.exports = buildCommand;
+export default buildCommand;

@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-const info = (message) => console.log(message);
-const warn = (message) => console.warn(message);
-const error = (message) => console.error(message);
-const bold = (message) => console.log(message);
-const die = (errorOrMessage, instructions) => {
+export const info = (message) => console.log(message);
+export const warn = (message) => console.warn(message);
+export const error = (message) => console.error(message);
+export const bold = (message) => console.log(message);
+export const die = (errorOrMessage, instructions) => {
   if (errorOrMessage instanceof Error) {
     error(errorOrMessage.message);
     info(errorOrMessage.stack);
@@ -15,5 +15,3 @@ const die = (errorOrMessage, instructions) => {
   }
   process.exit(1);
 };
-
-module.exports = { info, warn, error, bold, die };

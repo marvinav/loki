@@ -1,5 +1,5 @@
-const shell = require('shelljs');
-const { MissingDependencyError } = require('./errors');
+import shell from 'shelljs';
+import { MissingDependencyError } from './errors.js';
 
 const DEPENDENCIES = {
   docker: {
@@ -29,7 +29,7 @@ function ensureDependencyAvailable(dependency) {
   }
 }
 
-module.exports = {
+export {
   dependencyAvailable,
   ensureDependencyAvailable,
 };

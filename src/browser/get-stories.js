@@ -79,4 +79,4 @@ const getStories = async (window) => {
     .filter(({ parameters }) => !parameters.loki || !parameters.loki.skip);
 };
 
-module.exports = getStories;
+export default getStories;

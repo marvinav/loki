@@ -13,4 +13,4 @@ const disableInputCaret = (window) => {
   });
 };
 
-module.exports = disableInputCaret;
+export default disableInputCaret;

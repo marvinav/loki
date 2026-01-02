@@ -7,4 +7,4 @@ const setLokiIsRunning = (window) => {
   window.loki.isRunning = true;
 };
 
-module.exports = setLokiIsRunning;
+export default setLokiIsRunning;

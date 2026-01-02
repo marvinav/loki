@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
 
 const mimeTypes = {
   // Text
@@ -99,7 +99,7 @@ async function sendFile(res, filePath) {
   }
 }
 
-const createStaticServer = (dir) =>
+export const createStaticServer = (dir) =>
   http.createServer(async (req, res) => {
     const url = new URL(`http://localhost${req.url}`);
     const staticFilePath = path.normalize(
@@ -115,5 +115,3 @@ const createStaticServer = (dir) =>
       }
     }
   });
-
-module.exports = { createStaticServer };

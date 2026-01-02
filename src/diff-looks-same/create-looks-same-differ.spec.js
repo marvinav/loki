@@ -1,6 +1,6 @@
-const fs = require('fs-extra');
-const path = require('path');
-const createLooksSameDiffer = require('./create-looks-same-differ');
+import fs from 'fs-extra';
+import path from 'path';
+import createLooksSameDiffer from './create-looks-same-differ.js';
 
 const workingDirectory = `./looks-same-${Math.round(Math.random() * 1000)}`;
 const darkGrayPath = path.join(workingDirectory, 'dark-dray.png');

@@ -1,10 +1,10 @@
-const { TASK_TYPE_TEST } = require('../constants');
-const {
+import { TASK_TYPE_TEST } from '../constants.js';
+import {
   STATUS_NOT_STARTED,
   STATUS_RUNNING,
   STATUS_SUCCEEDED,
   STATUS_FAILED,
-} = require('../task-runner');
+} from '../task-runner.js';
 
 const STATUS_NAMES = {
   [STATUS_NOT_STARTED]: 'WAIT',
@@ -29,4 +29,4 @@ const renderTask = (task) => {
   return `${status} ${description}${error}`;
 };
 
-module.exports = { renderTask };
+export { renderTask };

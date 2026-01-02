@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 
-const {
+import {
   EVENT_CHANGE,
   STATUS_FAILED,
   STATUS_SUCCEEDED,
-} = require('../task-runner');
-const { TASK_TYPE_TESTS, TASK_TYPE_TARGET } = require('../constants');
-const { renderTask } = require('./render-task');
+} from '../task-runner.js';
+import { TASK_TYPE_TESTS, TASK_TYPE_TARGET } from '../constants.js';
+import { renderTask } from './render-task.js';
 
 const renderNonInteractive = (taskRunner) => {
   const handleChange = (task) => {
@@ -36,4 +36,4 @@ const renderNonInteractive = (taskRunner) => {
   return stopRendering;
 };
 
-module.exports = { renderNonInteractive };
+export { renderNonInteractive };

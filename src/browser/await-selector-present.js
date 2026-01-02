@@ -18,4 +18,4 @@ const awaitSelectorPresent = (window, selector, timeout = 10000) =>
     waitForSelector();
   });
 
-module.exports = awaitSelectorPresent;
+export default awaitSelectorPresent;

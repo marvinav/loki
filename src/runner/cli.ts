@@ -1,27 +1,28 @@
-/* eslint-disable global-require */
-
-const minimist = require('./minimist');
-console.log(minimist)
-const {
+import minimist from './minimist.js';
+import {
   MissingDependencyError,
   ServerError,
   ChromeError,
   FetchingURLsError,
   unwrapError,
-} = require('./core');
-const { die, bold } = require('./console');
+} from './core/index.js';
+import { die, bold } from './console.js';
 
-const getExecutorForCommand = (command) => {
+import init from './commands/init/index.js';
+import test from './commands/test/index.js';
+import approve from './commands/approve/index.js';
+
+const getExecutorForCommand = (command: 'init' | 'update' | 'test' | 'approve' | string | number) => {
   switch (command) {
     case 'init': {
-      return require('./commands/init');
+      return init;
     }
     case 'update':
     case 'test': {
-      return require('./commands/test');
+      return test;
     }
     case 'approve': {
-      return require('./commands/approve');
+      return approve;
     }
     default: {
       return die(`Invalid command ${command}`);
@@ -29,9 +30,9 @@ const getExecutorForCommand = (command) => {
   }
 };
 
-async function run() {
+export default async function run() {
   const args = process.argv.slice(2);
-  const argv = minimist(args);
+  const argv = minimist<{ silent: boolean }>(args);
   const command = argv._[0] || 'test';
   const executor = getExecutorForCommand(command);
 
@@ -63,5 +64,3 @@ async function run() {
     die(error);
   }
 }
-
-module.exports = run;

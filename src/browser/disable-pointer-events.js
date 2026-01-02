@@ -14,4 +14,4 @@ const disablePointerEvents = (window) => {
   });
 };
 
-module.exports = disablePointerEvents;
+export default disablePointerEvents;

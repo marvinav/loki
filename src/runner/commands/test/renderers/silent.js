@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
-const { EVENT_CHANGE, STATUS_FAILED } = require('../task-runner');
-const { TASK_TYPE_TESTS, TASK_TYPE_TARGET } = require('../constants');
-const { renderTask } = require('./render-task');
+import { EVENT_CHANGE, STATUS_FAILED } from '../task-runner.js';
+import { TASK_TYPE_TESTS, TASK_TYPE_TARGET } from '../constants.js';
+import { renderTask } from './render-task.js';
 
 const renderSilent = (taskRunner) => {
   const handleChange = (task) => {
@@ -23,4 +23,4 @@ const renderSilent = (taskRunner) => {
   return stopRendering;
 };
 
-module.exports = { renderSilent };
+export { renderSilent };

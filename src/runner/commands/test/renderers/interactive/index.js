@@ -1,12 +1,12 @@
-const React = require('react');
-const importJsx = require('import-jsx');
-const { render } = require('ink');
+import React from 'react';
+import importJsx from 'import-jsx';
+import { render } from 'ink';
 
-const App = importJsx('./App');
+const App = importJsx('./App.js');
 
 const renderInteractive = (taskRunner) => {
   const { unmount } = render(<App taskRunner={taskRunner} />);
   return unmount;
 };
 
-module.exports = { renderInteractive };
+export { renderInteractive };

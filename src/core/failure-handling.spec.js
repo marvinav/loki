@@ -1,4 +1,4 @@
-const { withRetries } = require('./failure-handling');
+import { withRetries } from './failure-handling.js';
 
 describe('withRetries', () => {
   it('returns a function', () => {

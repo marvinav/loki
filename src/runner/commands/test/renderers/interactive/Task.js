@@ -1,11 +1,11 @@
-const React = require('react');
-const { Box, Text } = require('ink');
-const {
+import React from 'react';
+import { Box, Text } from 'ink';
+import {
   STATUS_NOT_STARTED,
   STATUS_RUNNING,
   STATUS_SUCCEEDED,
   STATUS_FAILED,
-} = require('../../task-runner');
+} from '../../task-runner.js';
 
 const STATUS_CONFIGURATION_MAP = {
   [STATUS_NOT_STARTED]: {
@@ -41,4 +41,4 @@ const Task = ({ status, prefix, title }) => (
   </Box>
 );
 
-module.exports = React.memo(Task);
+export default React.memo(Task);

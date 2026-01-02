@@ -1,7 +1,7 @@
 /* eslint-disable jest/expect-expect */
-const fs = require('fs');
-const createBaselineLimitedBatchBuilder = require('./create-baseline-limited-batch-builder');
-const { getOutputPaths } = require('./get-output-paths');
+import fs from 'fs';
+import createBaselineLimitedBatchBuilder from './create-baseline-limited-batch-builder.js';
+import { getOutputPaths } from './get-output-paths.js';
 
 jest.mock('fs');
 

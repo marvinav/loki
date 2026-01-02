@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-const {
+import {
   EVENT_CHANGE,
   STATUS_FAILED,
   STATUS_SUCCEEDED,
-} = require('../task-runner');
-const { renderTask } = require('./render-task');
+} from '../task-runner.js';
+import { renderTask } from './render-task.js';
 
 const renderVerbose = (taskRunner) => {
   const handleChange = (task) => {
@@ -32,4 +32,4 @@ const renderVerbose = (taskRunner) => {
   return stopRendering;
 };
 
-module.exports = { renderVerbose };
+export { renderVerbose };

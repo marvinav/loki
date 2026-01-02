@@ -1,6 +1,6 @@
-const { createLooksSameDiffer } = require('../../../diff-looks-same');
+import { createLooksSameDiffer } from '../../../diff-looks-same/index.js';
 
-function getImageDiffer(engine, config) {
+export function getImageDiffer(engine, config) {
   switch (engine) {
     case 'looks-same': {
       return createLooksSameDiffer(config);
@@ -10,5 +10,3 @@ function getImageDiffer(engine, config) {
     }
   }
 }
-
-module.exports = { getImageDiffer };

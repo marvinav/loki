@@ -198,4 +198,4 @@ const getSelectorBoxSize = (window, selector) => {
   return elements.map(getBoundingClientRect).reduce(boxSizeUnion);
 };
 
-module.exports = getSelectorBoxSize;
+export default getSelectorBoxSize;

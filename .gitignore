@@ -5,3 +5,4 @@ yarn-error.log
 .loki
 !examples/*/.loki
 test_results.json
+dist

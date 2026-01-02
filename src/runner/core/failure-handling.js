@@ -1,6 +1,6 @@
-const { TimeoutError } = require('./errors');
+import { TimeoutError } from './errors.js';
 
-const withTimeout = (timeout, operationName) => (fnOrPromise) => {
+export const withTimeout = (timeout, operationName) => (fnOrPromise) => {
   const awaitPromise = (promise) =>
     new Promise(async (resolve, reject) => {
       let cancelled = false;
@@ -31,34 +31,34 @@ const withTimeout = (timeout, operationName) => (fnOrPromise) => {
 const sleep = (duration) =>
   new Promise((resolve) => setTimeout(resolve, duration));
 
-const withRetries =
+export const withRetries =
   (maxRetries = 3, backoff = 0) =>
-  (fn) =>
-  async (...args) => {
-    let tries = 0;
-    let lastError;
-    while (tries <= maxRetries) {
-      tries++;
-      try {
-        const result = await fn(...args);
-        return result;
-      } catch (err) {
-        lastError = err;
-      }
-      if (backoff && tries <= maxRetries) {
-        await sleep(backoff);
-      }
-    }
-    if (tries === 1) {
-      throw lastError;
-    }
-    const message = lastError.message || lastError.toString();
-    const error = new Error(`Failed with "${message}" after ${tries} tries`);
-    error.originalError = lastError;
-    throw error;
-  };
+    (fn) =>
+      async (...args) => {
+        let tries = 0;
+        let lastError;
+        while (tries <= maxRetries) {
+          tries++;
+          try {
+            const result = await fn(...args);
+            return result;
+          } catch (err) {
+            lastError = err;
+          }
+          if (backoff && tries <= maxRetries) {
+            await sleep(backoff);
+          }
+        }
+        if (tries === 1) {
+          throw lastError;
+        }
+        const message = lastError.message || lastError.toString();
+        const error = new Error(`Failed with "${message}" after ${tries} tries`);
+        error.originalError = lastError;
+        throw error;
+      };
 
-function unwrapError(rawError) {
+export function unwrapError(rawError) {
   let error = rawError;
 
   // Unwrap retry/timeout errors
@@ -68,5 +68,3 @@ function unwrapError(rawError) {
 
   return error;
 }
-
-module.exports = { withTimeout, withRetries, unwrapError };
