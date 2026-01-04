@@ -8,7 +8,7 @@ import {
   getLocalIPAddress,
   createStaticServer,
 } from '../core/index.js';
-import { createChromeTarget, type CDPClient } from '../target-chrome-core/index.js';
+import { createChromeTarget } from '../target-chrome-core/index.js';
 
 const debug = createDebug('loki:chrome:app');
 
@@ -30,10 +30,6 @@ interface ChromeAppTargetOptions {
 interface ChromeInstance {
   port: number;
   kill: () => Promise<void> | void;
-}
-
-interface CDPTarget {
-  id: string;
 }
 
 interface StaticServer {
@@ -75,7 +71,7 @@ function getStaticServerConfig(baseUrl: string): StaticServerConfig {
 }
 
 function createChromeAppTarget({
-  baseUrl = 'http://localhost:6006',
+  baseUrl = 'file:./test/iframe.html',
   useStaticServer = true,
   chromeFlags = ['--disable-gpu', '--hide-scrollbars'],
   cdpOptions = {},
@@ -83,11 +79,11 @@ function createChromeAppTarget({
 }: ChromeAppTargetOptions) {
   let instance: ChromeInstance | undefined;
   let staticServer: StaticServer | undefined;
-
+  console.log(baseUrl);
   const { chromeUrl, isLocalFile, staticServerPath, staticServerPort } =
     getStaticServerConfig(baseUrl);
 
-  async function start(options: Record<string, unknown> = {}): Promise<void> {
+    async function start(options: Record<string, unknown> = {}): Promise<void> {
     if (useStaticServer && isLocalFile && staticServerPath && staticServerPort) {
       staticServer = createStaticServer(staticServerPath) as StaticServer;
       staticServer.listen(staticServerPort);
@@ -117,13 +113,13 @@ function createChromeAppTarget({
     }
   }
 
-  async function createNewDebuggerInstance(): Promise<CDPClient> {
+  async function createNewDebuggerInstance(): Promise<CDP.Client> {
     if (!instance) {
       throw new Error('Chrome instance not started');
     }
     const { port } = instance;
     debug(`Launching new tab with debugger at port ${port}`);
-    const target = await CDP.New({ port }) as CDPTarget;
+    const target = await CDP.New({ port });
     debug(`Launched with target id ${target.id}`);
 
     const client = await CDP({ port, target, ...cdpOptions });

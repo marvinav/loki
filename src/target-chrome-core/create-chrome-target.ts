@@ -16,17 +16,16 @@ import { createReadyStateManager } from '../integration-core/index.js';
 
 import {
   TimeoutError,
-  FetchingURLsError,
   withTimeout,
   withRetries,
 } from '../core/index.js';
 import presets from './presets.json' with { type: 'json' };
+import type CDP from 'chrome-remote-interface';
 
 const debug = createDebug('loki:chrome');
 
 const CAPTURING_SCREENSHOT_TIMEOUT = 30000;
 const CAPTURING_SCREENSHOT_RETRY_BACKOFF = 500;
-const REQUEST_STABILIZATION_TIMEOUT = 100;
 const RESIZE_DELAY = 500;
 
 const delay = (duration: number): Promise<void> =>
@@ -103,13 +102,6 @@ interface Preset {
   features?: MediaFeature[];
 }
 
-interface RuntimeEvaluateResult {
-  result: {
-    value?: string;
-    subtype?: string;
-    description?: string;
-  };
-}
 
 interface Clip {
   scale: number;
@@ -119,39 +111,6 @@ interface Clip {
   height: number;
 }
 
-interface CDPClient {
-  Runtime: {
-    enable: () => Promise<void>;
-    evaluate: (params: { expression: string; awaitPromise: boolean }) => Promise<RuntimeEvaluateResult>;
-  };
-  Page: {
-    enable: () => Promise<void>;
-    navigate: (params: { url: string }) => Promise<void>;
-    loadEventFired: () => Promise<void>;
-    addScriptToEvaluateOnLoad?: (params: { scriptSource: string }) => Promise<void>;
-    addScriptToEvaluateOnNewDocument: (params: { source: string }) => Promise<void>;
-    captureScreenshot: (params: { format: string; clip: Clip }) => Promise<{ data: string }>;
-  };
-  Emulation: {
-    setDeviceMetricsOverride: (metrics: DeviceMetrics) => Promise<void>;
-    setEmulatedMedia: (params: { media?: string; features?: MediaFeature[] }) => Promise<void>;
-  };
-  DOM: {
-    enable: () => Promise<void>;
-  };
-  Network: {
-    enable: () => Promise<void>;
-    setUserAgentOverride: (params: { userAgent: string }) => Promise<void>;
-    clearBrowserCookies: () => Promise<void>;
-    requestWillBeSent: (callback: (params: { requestId: string; request: { url: string } }) => void) => void;
-    responseReceived: (callback: (params: { requestId: string; response: { status: number } }) => void) => void;
-    loadingFailed: (callback: (params: { requestId: string }) => void) => void;
-  };
-  close: () => Promise<void>;
-  executeFunctionWithWindow?: (fn: any, ...args: any[]) => Promise<any>;
-  loadUrl?: (url: string, selectorToBePresent?: string) => Promise<void>;
-  captureScreenshot?: (selector?: string) => Promise<Buffer>;
-}
 
 interface BoxSize {
   x: number;
@@ -167,7 +126,7 @@ interface RequestsFinishedAwaiter {
 
 type StartFunction = (options?: Record<string, unknown>) => Promise<void>;
 type StopFunction = () => Promise<void>;
-type CreateDebuggerFunction = () => Promise<CDPClient>;
+type CreateDebuggerFunction = () => Promise<CDP.Client>;
 type PrepareFunction = (() => Promise<void>) | undefined;
 
 function createChromeTarget(
@@ -186,7 +145,7 @@ function createChromeTarget(
     };
   }
 
-  async function launchNewTab(options: TabOptions): Promise<CDPClient> {
+  async function launchNewTab(options: TabOptions) {
     const fetchFailIgnore =
       options.fetchFailIgnore ? new RegExp(options.fetchFailIgnore, 'i') : null;
     const client = await createNewDebuggerInstance();
@@ -194,8 +153,8 @@ function createChromeTarget(
     const { Runtime, Page, Emulation, DOM, Network } = client;
 
     await Runtime.enable();
-    await Network.enable();
-    await DOM.enable();
+    await Network.enable({});
+    await DOM.enable({});
     await Page.enable();
     if (options.userAgent) {
       await Network.setUserAgentOverride({
@@ -229,21 +188,6 @@ function createChromeTarget(
     const maybeFulfillPromise = (): void => {
       if (!requestsFinishedAwaiter) {
         return;
-      }
-      const { reject, resolve } = requestsFinishedAwaiter;
-
-      if (Object.keys(pendingRequestURLMap).length === 0) {
-        if (failedURLs.length !== 0) {
-          reject(new FetchingURLsError(failedURLs));
-        } else {
-          if (stabilizationTimer) {
-            clearTimeout(stabilizationTimer);
-          }
-          stabilizationTimer = setTimeout(
-            resolve,
-            REQUEST_STABILIZATION_TIMEOUT
-          );
-        }
       }
     };
 
@@ -281,13 +225,7 @@ function createChromeTarget(
       });
     };
 
-    const awaitRequestsFinished = (): Promise<void> =>
-      new Promise((resolve, reject) => {
-        requestsFinishedAwaiter = { resolve, reject };
-        maybeFulfillPromise();
-      });
-
-    const evaluateOnNewDocument = (scriptSource: string): Promise<void> => {
+    const evaluateOnNewDocument = (scriptSource: string) => {
       if (Page.addScriptToEvaluateOnLoad) {
         return Page.addScriptToEvaluateOnLoad({ scriptSource });
       }
@@ -323,9 +261,7 @@ function createChromeTarget(
       }
     };
 
-    client.executeFunctionWithWindow = executeFunctionWithWindow;
-
-    client.loadUrl = async (url: string, selectorToBePresent?: string): Promise<void> => {
+    const loadUrl = async (url: string, selectorToBePresent?: string): Promise<void> => {
       await evaluateOnNewDocument(
         `(${populateLokiHelpers})(window, (${createReadyStateManager})());`
       );
@@ -385,7 +321,7 @@ function createChromeTarget(
       }
     };
 
-    client.captureScreenshot = withRetries(
+    const captureScreenshot = withRetries(
       options.chromeRetries ?? 0,
       CAPTURING_SCREENSHOT_RETRY_BACKOFF
     )(
@@ -461,7 +397,7 @@ function createChromeTarget(
       })
     );
 
-    return client;
+    return {...client, captureScreenshot, loadUrl, executeFunctionWithWindow};
   }
 
   const getStoryUrl = async (storyId: string): Promise<string | undefined> => {
@@ -537,14 +473,12 @@ function createChromeTarget(
     stop,
     prepare,
     getStorybook,
-    launchNewTab,
     captureScreenshotForStory,
   };
 }
 
 export { createChromeTarget };
 export type {
-  CDPClient,
   TabOptions,
   Story,
   Configuration,

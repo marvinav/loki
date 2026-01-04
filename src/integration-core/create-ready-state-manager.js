@@ -22,8 +22,8 @@ function createReadyStateManager() {
   }
 
   return {
-    registerPendingPromise: registerPendingPromise,
-    resetPendingPromises: resetPendingPromises,
+    registerPendingPromise,
+    resetPendingPromises,
     awaitReady: awaitReady,
   };
 }

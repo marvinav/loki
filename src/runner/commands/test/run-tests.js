@@ -60,8 +60,8 @@ async function runTests(flatConfigurations, options) {
   if (options.updateReference) {
     await fs.ensureDir(options.referenceDir);
   } else {
-    await fs.emptyDirSync(options.outputDir);
-    await fs.emptyDirSync(options.differenceDir);
+    fs.emptyDirSync(options.outputDir);
+    fs.emptyDirSync(options.differenceDir);
     await placeGitignore([options.outputDir, options.differenceDir]);
   }
 

@@ -41,7 +41,7 @@ export default async function run() {
   }
 
   try {
-    await executor(args);
+    executor(args);
   } catch (rawError) {
     const error = unwrapError(rawError);
 
