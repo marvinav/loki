@@ -9,7 +9,9 @@
     "module": "node20",
     "target": "esnext",
     "lib": [
-      "esnext"
+      "esnext",
+      "dom",
+      "dom.iterable"
     ],
     "types": [
       "node"

@@ -21,10 +21,10 @@ function parseOptions(args, config) {
     outputDir: path.resolve($('output')),
     referenceDir: path.resolve($('reference')),
     differenceDir: path.resolve($('difference')),
+    storiesJsonPath: $('stories')
+      ? path.resolve($('stories'))
+      : undefined,
     fileNameFormatter: config.fileNameFormatter,
-    reactUri:
-      $('reactUri') || `http://${$('host')}:${argv.port || $('reactPort')}`,
-    reactNativeUri: `ws://${$('host')}:${argv.port || $('reactNativePort')}`,
     dockerNet: $('dockerNet'),
     chromeAwsLambdaFunctionName: $('chromeAwsLambdaFunctionName'),
     chromeAwsLambdaRetries: parseInt($('chromeAwsLambdaRetries'), 10),

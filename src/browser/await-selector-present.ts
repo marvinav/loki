@@ -1,8 +1,14 @@
-const awaitSelectorPresent = (window, selector, timeout = 10000) =>
-  new Promise((resolve, reject) => {
-    let resolutionTimer;
+const awaitSelectorPresent = (
+  window: Window & typeof globalThis,
+  selector: string,
+  timeout = 10000
+) =>
+  new Promise<void>((resolve, reject) => {
+    let resolutionTimer: ReturnType<typeof setTimeout> | undefined;
     const rejectionTimer = setTimeout(() => {
-      clearTimeout(resolutionTimer);
+      if (resolutionTimer) {
+        clearTimeout(resolutionTimer);
+      }
       reject(new Error(`Timeout after ${timeout}ms`));
     }, timeout);
 

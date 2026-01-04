@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 
-const setLokiIsRunning = (window) => {
+import { LokiWindow } from './types.js';
+
+const setLokiIsRunning = (window: LokiWindow) => {
   if (!window.loki) {
     window.loki = {};
   }

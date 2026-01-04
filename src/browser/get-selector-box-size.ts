@@ -1,5 +1,15 @@
-const getSelectorBoxSize = (window, selector) => {
-  function hasOverflow(element) {
+type BoundingBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+const getSelectorBoxSize = (
+  window: Window & typeof globalThis,
+  selector: string
+): BoundingBox => {
+  function hasOverflow(element: Element) {
     const overflowValues = ['auto', 'hidden', 'scroll'];
     const style = window.getComputedStyle(element);
 
@@ -14,16 +24,28 @@ const getSelectorBoxSize = (window, selector) => {
     return false;
   }
 
-  function hasFixedPosition(element) {
+  function hasFixedPosition(element: Element) {
     const style = window.getComputedStyle(element);
     return style.position === 'fixed';
   }
 
   function isElementHiddenByOverflow(
-    element,
-    { hasParentFixedPosition, hasParentOverflowHidden, parentNotVisible }
+    element: Element,
+    {
+      hasParentFixedPosition,
+      hasParentOverflowHidden,
+      parentNotVisible,
+    }: {
+      hasParentFixedPosition: Element | null;
+      hasParentOverflowHidden: Element | null;
+      parentNotVisible: boolean;
+    }
   ) {
     const isElementOutOfBounds = () => {
+      if (!hasParentOverflowHidden) {
+        return false;
+      }
+
       try {
         const elementRect = element.getBoundingClientRect();
         const containerRect = hasParentOverflowHidden.getBoundingClientRect();
@@ -77,7 +99,7 @@ const getSelectorBoxSize = (window, selector) => {
     return false;
   }
 
-  function isVisible(element) {
+  function isVisible(element: Element) {
     const style = window.getComputedStyle(element);
     return !(
       style.visibility === 'hidden' ||
@@ -88,20 +110,24 @@ const getSelectorBoxSize = (window, selector) => {
     );
   }
 
-  const elements = [];
+  const elements: Element[] = [];
 
   function walk(
-    element,
+    element: Element | null,
     {
       isRoot = false,
       hasParentOverflowHidden = null,
       hasParentFixedPosition = null,
       parentNotVisible = false,
       root,
+    }: {
+      isRoot?: boolean;
+      hasParentOverflowHidden?: Element | null;
+      hasParentFixedPosition?: Element | null;
+      parentNotVisible?: boolean;
+      root: Element;
     }
   ) {
-    let node;
-
     if (!element) {
       return;
     }
@@ -111,45 +137,49 @@ const getSelectorBoxSize = (window, selector) => {
     const elementHiddenByOverflow = ignoreIsElementHiddenByOverflow
       ? false
       : isElementHiddenByOverflow(element, {
-          hasParentFixedPosition,
-          hasParentOverflowHidden,
-          parentNotVisible,
+          hasParentFixedPosition: hasParentFixedPosition ?? null,
+          hasParentOverflowHidden: hasParentOverflowHidden ?? null,
+          parentNotVisible: parentNotVisible ?? false,
         });
 
     if (isVisible(element) && !isRoot && !elementHiddenByOverflow) {
       elements.push(element);
     }
 
-    for (node = element.firstChild; node; node = node.nextSibling) {
+    for (
+      let node: ChildNode | null = element.firstChild;
+      node;
+      node = node.nextSibling
+    ) {
       if (node.nodeType === 1) {
-        walk(node, {
+        walk(node as Element, {
           root,
           isRoot: false,
           parentNotVisible: elementHiddenByOverflow,
           hasParentFixedPosition: hasFixedPosition(element)
             ? element
-            : hasParentFixedPosition,
+            : hasParentFixedPosition ?? null,
           hasParentOverflowHidden: hasOverflow(element)
             ? element
-            : hasParentOverflowHidden,
+            : hasParentOverflowHidden ?? null,
         });
       }
     }
   }
 
-  function getRootElement(rootSelector) {
+  function getRootElement(rootSelector: string): Element | null {
     const roots = Array.from(
-      Array.from(window.document.querySelectorAll(rootSelector)).map(
-        (element) => element.parentElement
-      )
-    );
+      window.document.querySelectorAll<HTMLElement>(rootSelector)
+    )
+      .map((element) => element.parentElement)
+      .filter((parent): parent is HTMLElement => Boolean(parent));
 
     if (roots.length === 1) {
-      return roots[0];
+      return roots[0] ?? null;
     }
 
     // Find the deepest node
-    return roots.reduce((root, node) => {
+    return roots.reduce<HTMLElement | null>((root, node) => {
       if (!root) {
         return node;
       }
@@ -174,9 +204,15 @@ const getSelectorBoxSize = (window, selector) => {
     throw new Error('No visible elements found');
   }
 
-  const getBoundingClientRect = (element) => element.getBoundingClientRect();
+  const getBoundingClientRect = (element: Element): BoundingBox => {
+    const { x, y, width, height } = element.getBoundingClientRect();
+    return { x, y, width, height };
+  };
 
-  const boxSizeUnion = (domRect, { x, y, width, height }) => {
+  const boxSizeUnion = (
+    domRect: BoundingBox,
+    { x, y, width, height }: BoundingBox
+  ): BoundingBox => {
     if (!domRect) {
       return { x, y, width, height };
     }
@@ -195,7 +231,12 @@ const getSelectorBoxSize = (window, selector) => {
     };
   };
 
-  return elements.map(getBoundingClientRect).reduce(boxSizeUnion);
+  const [first, ...rest] = elements.map(getBoundingClientRect);
+  if (!first) {
+    throw new Error('No visible elements found');
+  }
+
+  return rest.reduce(boxSizeUnion, first);
 };
 
 export default getSelectorBoxSize;

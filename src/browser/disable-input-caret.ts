@@ -1,4 +1,4 @@
-const disableInputCaret = (window) => {
+const disableInputCaret = (window: Window & typeof globalThis) => {
   const DISABLE_INPUT_CARET_STYLE = `
   * {
     caret-color: transparent !important;
@@ -9,7 +9,7 @@ const disableInputCaret = (window) => {
   window.document.addEventListener('DOMContentLoaded', () => {
     const styleElement = window.document.createElement('style');
     window.document.documentElement.appendChild(styleElement);
-    styleElement.sheet.insertRule(DISABLE_INPUT_CARET_STYLE);
+    styleElement.sheet?.insertRule(DISABLE_INPUT_CARET_STYLE);
   });
 };
 

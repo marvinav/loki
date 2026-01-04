@@ -149,12 +149,13 @@ async function runTests(flatConfigurations, options) {
                             new RegExp(includePattern, 'i').test(fullStoryName);
                           return !exclude && include;
                         })
-                        .map(({ id, kind, story, parameters }) => ({
+                        .map(({ id, kind, story, parameters, url }) => ({
                           id: `${targetName}/${TASK_TYPE_TEST}/${configurationName}/${kind}/${story}`,
                           meta: {
                             target: targetName,
                             configuration: configurationName,
                             id,
+                            url,
                             kind,
                             story,
                             type: TASK_TYPE_TEST,
@@ -163,6 +164,7 @@ async function runTests(flatConfigurations, options) {
                             configuration,
                             configurationName,
                             id,
+                            url,
                             kind,
                             story,
                             parameters,
@@ -212,8 +214,8 @@ async function runTests(flatConfigurations, options) {
         return getTargetTasks(
           target,
           createChromeAppTarget({
-            baseUrl: options.reactUri,
             chromeFlags: options.chromeFlags,
+            storiesPath: options.storiesJsonPath,
           }),
           configurations,
           options.chromeConcurrency,

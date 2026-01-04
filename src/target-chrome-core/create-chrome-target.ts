@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import fs from 'fs-extra';
 import createDebug from 'debug';
 import {
   disableAnimations,
   disableInputCaret,
   disablePointerEvents,
   getSelectorBoxSize,
-  getStories,
   awaitLokiReady,
   awaitSelectorPresent,
   setLokiIsRunning,
@@ -16,47 +17,178 @@ import { createReadyStateManager } from '../integration-core/index.js';
 import {
   TimeoutError,
   FetchingURLsError,
-  ServerError,
   withTimeout,
   withRetries,
-  unwrapError,
-  getAbsoluteURL,
 } from '../core/index.js';
-import presets from './presets.json' with {type: 'json'};
+import presets from './presets.json' with { type: 'json' };
 
 const debug = createDebug('loki:chrome');
 
-const RETRY_LOADING_STORIES_TIMEOUT = 10000;
-const LOADING_STORIES_TIMEOUT = 60000;
 const CAPTURING_SCREENSHOT_TIMEOUT = 30000;
 const CAPTURING_SCREENSHOT_RETRY_BACKOFF = 500;
 const REQUEST_STABILIZATION_TIMEOUT = 100;
 const RESIZE_DELAY = 500;
 
-const delay = (duration) =>
+const delay = (duration: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, duration));
 
-function createChromeTarget(
-  start,
-  stop,
-  createNewDebuggerInstance,
-  baseUrl,
-  prepare
-) {
-  const resolvedBaseUrl = getAbsoluteURL(baseUrl);
+interface MediaFeature {
+  name: string;
+  value: string;
+}
 
-  function getDeviceMetrics(options) {
+interface DeviceMetrics {
+  width: number;
+  height: number;
+  deviceScaleFactor: number;
+  mobile: boolean;
+}
+
+interface TabOptions {
+  width: number;
+  height: number;
+  deviceScaleFactor?: number;
+  mobile?: boolean;
+  userAgent?: string;
+  clearBrowserCookies?: boolean;
+  media?: string;
+  features?: MediaFeature[];
+  fetchFailIgnore?: string;
+  chromeEnableAnimations?: boolean;
+  chromeRetries?: number;
+  chromeLoadTimeout?: number;
+  chromeSelector?: string;
+  disableAutomaticViewportHeight?: boolean;
+  preset?: string;
+}
+
+interface StoryParameters {
+  loki?: {
+    chromeSelector?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+interface Story {
+  id: string;
+  url: string;
+  kind?: string;
+  story?: string;
+  parameters?: StoryParameters;
+}
+
+interface Configuration {
+  preset?: string;
+  chromeSelector?: string;
+  [key: string]: unknown;
+}
+
+interface Options {
+  chromeEmulatedMedia?: string;
+  fetchFailIgnore?: string;
+  chromeSelector?: string;
+  chromeLoadTimeout?: number;
+  chromeRetries?: number;
+  [key: string]: unknown;
+}
+
+interface Preset {
+  userAgent?: string;
+  width: number;
+  height: number;
+  deviceScaleFactor?: number;
+  mobile?: boolean;
+  media?: string;
+  features?: MediaFeature[];
+}
+
+interface RuntimeEvaluateResult {
+  result: {
+    value?: string;
+    subtype?: string;
+    description?: string;
+  };
+}
+
+interface Clip {
+  scale: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface CDPClient {
+  Runtime: {
+    enable: () => Promise<void>;
+    evaluate: (params: { expression: string; awaitPromise: boolean }) => Promise<RuntimeEvaluateResult>;
+  };
+  Page: {
+    enable: () => Promise<void>;
+    navigate: (params: { url: string }) => Promise<void>;
+    loadEventFired: () => Promise<void>;
+    addScriptToEvaluateOnLoad?: (params: { scriptSource: string }) => Promise<void>;
+    addScriptToEvaluateOnNewDocument: (params: { source: string }) => Promise<void>;
+    captureScreenshot: (params: { format: string; clip: Clip }) => Promise<{ data: string }>;
+  };
+  Emulation: {
+    setDeviceMetricsOverride: (metrics: DeviceMetrics) => Promise<void>;
+    setEmulatedMedia: (params: { media?: string; features?: MediaFeature[] }) => Promise<void>;
+  };
+  DOM: {
+    enable: () => Promise<void>;
+  };
+  Network: {
+    enable: () => Promise<void>;
+    setUserAgentOverride: (params: { userAgent: string }) => Promise<void>;
+    clearBrowserCookies: () => Promise<void>;
+    requestWillBeSent: (callback: (params: { requestId: string; request: { url: string } }) => void) => void;
+    responseReceived: (callback: (params: { requestId: string; response: { status: number } }) => void) => void;
+    loadingFailed: (callback: (params: { requestId: string }) => void) => void;
+  };
+  close: () => Promise<void>;
+  executeFunctionWithWindow?: (fn: any, ...args: any[]) => Promise<any>;
+  loadUrl?: (url: string, selectorToBePresent?: string) => Promise<void>;
+  captureScreenshot?: (selector?: string) => Promise<Buffer>;
+}
+
+interface BoxSize {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface RequestsFinishedAwaiter {
+  resolve: () => void;
+  reject: (error: Error) => void;
+}
+
+type StartFunction = (options?: Record<string, unknown>) => Promise<void>;
+type StopFunction = () => Promise<void>;
+type CreateDebuggerFunction = () => Promise<CDPClient>;
+type PrepareFunction = (() => Promise<void>) | undefined;
+
+function createChromeTarget(
+  start: StartFunction,
+  stop: StopFunction,
+  createNewDebuggerInstance: CreateDebuggerFunction,
+  prepare: PrepareFunction,
+  storiesPath: string
+) {
+  function getDeviceMetrics(options: TabOptions): DeviceMetrics {
     return {
       width: options.width,
       height: options.height,
-      deviceScaleFactor: options.deviceScaleFactor || 1,
-      mobile: options.mobile || false,
+      deviceScaleFactor: options.deviceScaleFactor ?? 1,
+      mobile: options.mobile ?? false,
     };
   }
 
-  async function launchNewTab(options) {
+  async function launchNewTab(options: TabOptions): Promise<CDPClient> {
     const fetchFailIgnore =
-      options.fetchFailIgnore && new RegExp(options.fetchFailIgnore, 'i');
+      options.fetchFailIgnore ? new RegExp(options.fetchFailIgnore, 'i') : null;
     const client = await createNewDebuggerInstance();
     const deviceMetrics = getDeviceMetrics(options);
     const { Runtime, Page, Emulation, DOM, Network } = client;
@@ -76,7 +208,7 @@ function createChromeTarget(
     await Emulation.setDeviceMetricsOverride(deviceMetrics);
 
     if (options.media || options.features) {
-      const emulated = {};
+      const emulated: { media?: string; features?: MediaFeature[] } = {};
 
       if (options.media) {
         emulated.media = options.media;
@@ -89,12 +221,12 @@ function createChromeTarget(
       await Emulation.setEmulatedMedia(emulated);
     }
 
-    const pendingRequestURLMap = {};
-    const failedURLs = [];
-    let stabilizationTimer = null;
-    let requestsFinishedAwaiter;
+    const pendingRequestURLMap: Record<string, string> = {};
+    const failedURLs: string[] = [];
+    let stabilizationTimer: ReturnType<typeof setTimeout> | null = null;
+    let requestsFinishedAwaiter: RequestsFinishedAwaiter | null = null;
 
-    const maybeFulfillPromise = () => {
+    const maybeFulfillPromise = (): void => {
       if (!requestsFinishedAwaiter) {
         return;
       }
@@ -104,7 +236,6 @@ function createChromeTarget(
         if (failedURLs.length !== 0) {
           reject(new FetchingURLsError(failedURLs));
         } else {
-          // In some cases such as fonts further requests will only happen after the page has been fully rendered
           if (stabilizationTimer) {
             clearTimeout(stabilizationTimer);
           }
@@ -116,15 +247,15 @@ function createChromeTarget(
       }
     };
 
-    const startObservingRequests = () => {
-      const requestEnded = (requestId) => {
+    const startObservingRequests = (): void => {
+      const requestEnded = (requestId: string): void => {
         delete pendingRequestURLMap[requestId];
         maybeFulfillPromise();
       };
 
-      const requestFailed = (requestId) => {
+      const requestFailed = (requestId: string): void => {
         const failedURL = pendingRequestURLMap[requestId];
-        if (!fetchFailIgnore || !fetchFailIgnore.test(failedURL)) {
+        if (failedURL && (!fetchFailIgnore || !fetchFailIgnore.test(failedURL))) {
           failedURLs.push(failedURL);
         }
         requestEnded(requestId);
@@ -150,23 +281,25 @@ function createChromeTarget(
       });
     };
 
-    const awaitRequestsFinished = () =>
+    const awaitRequestsFinished = (): Promise<void> =>
       new Promise((resolve, reject) => {
         requestsFinishedAwaiter = { resolve, reject };
         maybeFulfillPromise();
       });
 
-    const evaluateOnNewDocument = (scriptSource) => {
+    const evaluateOnNewDocument = (scriptSource: string): Promise<void> => {
       if (Page.addScriptToEvaluateOnLoad) {
-        // For backwards support
         return Page.addScriptToEvaluateOnLoad({ scriptSource });
       }
-      return Page.addScriptToEvaluateOnNewDocument({ scriptSource });
+      return Page.addScriptToEvaluateOnNewDocument({ source: scriptSource });
     };
 
-    const executeFunctionWithWindow = async (functionToExecute, ...args) => {
+    const executeFunctionWithWindow = async (
+      functionToExecute: any,
+      ...args: any[]
+    ): Promise<any> => {
       const stringifiedArgs = ['window']
-        .concat(args.map(JSON.stringify))
+        .concat(args.map((arg) => JSON.stringify(arg)))
         .join(',');
       const expression = `(() => Promise.resolve((${functionToExecute})(${stringifiedArgs})).then(JSON.stringify))()`;
       const { result } = await Runtime.evaluate({
@@ -175,14 +308,16 @@ function createChromeTarget(
       });
       if (result.subtype === 'error') {
         throw new Error(
-          result.description.replace(/^Error: /, '').split('\n')[0]
+          (result.description ?? '').replace(/^Error: /, '').split('\n')[0]
         );
       }
-      return result.value && JSON.parse(result.value);
+      return result.value ? JSON.parse(result.value) : undefined;
     };
 
-    const ensureNoErrorPresent = async () => {
-      const errorMessage = await executeFunctionWithWindow();
+    const ensureNoErrorPresent = async (): Promise<void> => {
+      const errorMessage = await executeFunctionWithWindow(() => {
+        return null;
+      });
       if (errorMessage) {
         throw new Error(`Failed to render with error "${errorMessage}"`);
       }
@@ -190,7 +325,7 @@ function createChromeTarget(
 
     client.executeFunctionWithWindow = executeFunctionWithWindow;
 
-    client.loadUrl = async (url, selectorToBePresent) => {
+    client.loadUrl = async (url: string, selectorToBePresent?: string): Promise<void> => {
       await evaluateOnNewDocument(
         `(${populateLokiHelpers})(window, (${createReadyStateManager})());`
       );
@@ -216,8 +351,9 @@ function createChromeTarget(
           );
           debug(`Selector "${selectorToBePresent}" found!`);
         } catch (error) {
-          debug(`Error waiting for selector "${error.message}"!`);
-          if (error.message.startsWith('Timeout')) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          debug(`Error waiting for selector "${errorMessage}"!`);
+          if (errorMessage.startsWith('Timeout')) {
             await ensureNoErrorPresent();
           }
           throw error;
@@ -234,11 +370,13 @@ function createChromeTarget(
       await executeFunctionWithWindow(awaitLokiReady);
     };
 
-    const getPositionInViewport = async (selector) => {
+    const getPositionInViewport = async (selector: string): Promise<BoxSize> => {
       try {
-        return await executeFunctionWithWindow(getSelectorBoxSize, selector);
+        const result = await executeFunctionWithWindow(getSelectorBoxSize, selector);
+        return result as BoxSize;
       } catch (error) {
-        if (error.message === 'No visible elements found') {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage === 'No visible elements found') {
           throw new Error(
             `Unable to get position of selector "${selector}". Review the \`chromeSelector\` option and make sure your story doesn't crash.`
           );
@@ -248,23 +386,23 @@ function createChromeTarget(
     };
 
     client.captureScreenshot = withRetries(
-      options.chromeRetries,
+      options.chromeRetries ?? 0,
       CAPTURING_SCREENSHOT_RETRY_BACKOFF
     )(
       withTimeout(
         CAPTURING_SCREENSHOT_TIMEOUT,
         'captureScreenshot'
-      )(async (selector = 'body') => {
+      )(async (selector = 'body'): Promise<Buffer> => {
         debug(`Getting viewport position of "${selector}"`);
         const position = await getPositionInViewport(selector);
 
         if (position.width === 0 || position.height === 0) {
           throw new Error(
-            `Selector "${selector} has zero width or height. Can't capture screenshot.`
+            `Selector "${selector}" has zero width or height. Can't capture screenshot.`
           );
         }
 
-        const clip = {
+        const clip: Clip = {
           scale: 1,
           x: Math.floor(position.x),
           y: Math.floor(position.y),
@@ -272,8 +410,6 @@ function createChromeTarget(
           height: Math.ceil(position.height),
         };
 
-        // Clamp x/y positions to viewport otherwise chrome
-        // ignores scale
         if (clip.x < 0) {
           clip.width += clip.x;
           clip.x = 0;
@@ -284,7 +420,6 @@ function createChromeTarget(
           clip.y = 0;
         }
 
-        // Clap width/height to fit in viewport
         if (clip.x + clip.width > deviceMetrics.width) {
           clip.width = deviceMetrics.width - clip.x;
         }
@@ -302,14 +437,12 @@ function createChromeTarget(
           contentEndY > deviceMetrics.height;
 
         if (shouldResizeWindowToFit) {
-          const override = Object.assign({}, deviceMetrics, {
+          const override: DeviceMetrics = {
+            ...deviceMetrics,
             height: contentEndY,
-          });
+          };
           debug('Resizing window to fit tall content');
           await Emulation.setDeviceMetricsOverride(override);
-          // This number is arbitrary and probably excessive,
-          // but there are no other events or values to observe
-          // that I could find indicating when chrome is done resizing
           await delay(RESIZE_DELAY);
         }
 
@@ -331,84 +464,61 @@ function createChromeTarget(
     return client;
   }
 
-  const getStoryUrl = (storyId) =>
-    `${resolvedBaseUrl}/iframe.html?id=${encodeURIComponent(
-      storyId
-    )}&viewMode=story`;
+  const getStoryUrl = async (storyId: string): Promise<string | undefined> => {
+    const stories = await fs.readJson(storiesPath) as Story[];
+    return stories.find((x) => x.id === storyId)?.url;
+  };
 
-  const launchStoriesTab = withTimeout(LOADING_STORIES_TIMEOUT)(
-    withRetries(
-      0,
-      RETRY_LOADING_STORIES_TIMEOUT
-    )(async (url) => {
-      console.log('start tab')
-      const tab = await launchNewTab({
-        width: 100,
-        height: 100,
-        chromeEnableAnimations: true,
-        clearBrowserCookies: false,
-        fetchFailIgnore: '/__webpack_hmr',
-      });
-      console.log('tab is loaded', tab != null, url);
-
-      await tab.loadUrl(url);
-      console.log('url is loaded');
-      return tab;
-    })
-  );
-
-  async function getStorybook() {
-    const url = `${resolvedBaseUrl}/iframe.html`;
+  const getStorybook = async (): Promise<Story[]> => {
     try {
-      const tab = await launchStoriesTab(url);
+      const stories = await fs.readJson(storiesPath) as Story[];
 
-      return tab.executeFunctionWithWindow(getStories);
-    } catch (rawError) {
-      const error = unwrapError(rawError);
-      if (
-        error instanceof TimeoutError ||
-        (error instanceof FetchingURLsError && error.failedURLs.includes(url))
-      ) {
-        throw new ServerError(
-          'Failed fetching stories because the server is down',
-          `Try starting it with "yarn storybook" or pass the --port or --host arguments if it's not running at ${resolvedBaseUrl}`
-        );
+      if (!Array.isArray(stories)) {
+        throw new Error('Stories file must contain an array of stories');
       }
-      throw error;
+
+      return stories;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to read stories from ${storiesPath}: ${errorMessage}`
+      );
     }
-  }
+  };
 
   async function captureScreenshotForStory(
-    storyId,
-    options,
-    configuration,
-    parameters
-  ) {
-    let tabOptions = Object.assign(
-      {
-        media: options.chromeEmulatedMedia,
-        fetchFailIgnore: options.fetchFailIgnore,
-      },
-      configuration,
-      parameters.loki || {}
-    );
+    storyId: string,
+    options: Options,
+    configuration: Configuration,
+    parameters: StoryParameters
+  ): Promise<Buffer | undefined> {
+    let tabOptions: TabOptions = {
+      media: options.chromeEmulatedMedia,
+      fetchFailIgnore: options.fetchFailIgnore,
+      ...configuration,
+      ...(parameters.loki ?? {}),
+    } as TabOptions;
+
     if (configuration.preset) {
-      if (!presets[configuration.preset]) {
+      const preset = (presets as Record<string, Preset>)[configuration.preset];
+      if (!preset) {
         throw new Error(`Invalid preset ${configuration.preset}`);
       }
-      tabOptions = Object.assign(tabOptions, presets[configuration.preset]);
+      tabOptions = { ...tabOptions, ...preset };
     }
-    const selector =
-      (parameters.loki && parameters.loki.chromeSelector) ||
-      configuration.chromeSelector ||
-      options.chromeSelector;
-    const url = getStoryUrl(storyId);
 
+    const selector =
+      parameters.loki?.chromeSelector ??
+      configuration.chromeSelector ??
+      options.chromeSelector;
+
+    const url = await getStoryUrl(storyId);
     const tab = await launchNewTab(tabOptions);
-    let screenshot;
+    let screenshot: Buffer | undefined;
+
     try {
-      await withTimeout(options.chromeLoadTimeout)(tab.loadUrl(url, selector));
-      screenshot = await tab.captureScreenshot(selector);
+      await withTimeout(options.chromeLoadTimeout)(tab.loadUrl!(url!, selector));
+      screenshot = await tab.captureScreenshot!(selector);
     } catch (err) {
       if (err instanceof TimeoutError) {
         debug(`Timed out waiting for "${url}" to load`);
@@ -433,3 +543,14 @@ function createChromeTarget(
 }
 
 export { createChromeTarget };
+export type {
+  CDPClient,
+  TabOptions,
+  Story,
+  Configuration,
+  Options,
+  StartFunction,
+  StopFunction,
+  CreateDebuggerFunction,
+  PrepareFunction,
+};

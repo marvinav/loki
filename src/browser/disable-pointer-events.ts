@@ -1,4 +1,4 @@
-const disablePointerEvents = (window) => {
+const disablePointerEvents = (window: Window & typeof globalThis) => {
   const DISABLE_POINTER_EVENTS_STYLE = `
   * {
     pointer-events: none !important;
@@ -10,7 +10,7 @@ const disablePointerEvents = (window) => {
   window.document.addEventListener('DOMContentLoaded', () => {
     const styleElement = window.document.createElement('style');
     window.document.documentElement.appendChild(styleElement);
-    styleElement.sheet.insertRule(DISABLE_POINTER_EVENTS_STYLE);
+    styleElement.sheet?.insertRule(DISABLE_POINTER_EVENTS_STYLE);
   });
 };
 

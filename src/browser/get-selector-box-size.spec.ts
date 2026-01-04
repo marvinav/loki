@@ -3,11 +3,22 @@
  */
 
 /* eslint-env browser */
-
+import { describe, expect, it, jest } from '@jest/globals';
 import getSelectorBoxSize from './get-selector-box-size.js';
 
-const addElementsToWrapper = (rects, customMarkup = (w) => w) => {
-  let wrapper = document.querySelector('#root');
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  style?: Partial<CSSStyleDeclaration>;
+};
+
+const addElementsToWrapper = (
+  rects: Rect[],
+  customMarkup: (wrapper: HTMLElement) => HTMLElement = (w) => w
+) => {
+  let wrapper = document.querySelector<HTMLElement>('#root');
 
   if (!wrapper) {
     wrapper = document.createElement('div');
@@ -21,12 +32,9 @@ const addElementsToWrapper = (rects, customMarkup = (w) => w) => {
 
   rects.forEach(({ x, y, width, height, style }) => {
     const element = document.createElement('div');
-    element.getBoundingClientRect = jest.fn(() => ({
-      x,
-      y,
-      width,
-      height,
-    }));
+    element.getBoundingClientRect = jest.fn(
+      () => new DOMRect(x, y, width, height)
+    );
     Object.assign(element.style, { padding: '0px', margin: '0px' }, style, {
       width: `${width}px`,
       height: `${height}px`,
@@ -152,12 +160,9 @@ describe('getSelectorBoxSize', () => {
     addElementsToWrapper(mockElementRects, (root) => {
       const wrapper = document.createElement('div');
       wrapper.setAttribute('class', 'wrapper');
-      wrapper.getBoundingClientRect = jest.fn(() => ({
-        x: 0,
-        y: 0,
-        width: 1000,
-        height: 1000,
-      }));
+      wrapper.getBoundingClientRect = jest.fn(
+        () => new DOMRect(0, 0, 1000, 1000)
+      );
       root.appendChild(wrapper);
       return wrapper;
     });
