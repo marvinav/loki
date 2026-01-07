@@ -1,7 +1,7 @@
 {
   "name": "@loki/root",
   "version": "0.18.1",
-  "description": "Visual Regression Testing for react-storybook",
+  "description": "Visual Regression Testing for Storybook",
   "type": "module",
   "private": true,
   "bin": {
@@ -35,29 +35,17 @@
       "packages/*",
       "test/*",
       "website",
-      "examples/react",
-      "examples/renderer-aws-lambda",
-      "examples/running-renderer-aws-lambda"
+      "examples/react"
     ]
   },
   "dependencies": {
-    "async": "^3.2.4",
     "chrome-launcher": "0.15.2",
     "chrome-remote-interface": "^0.32.1",
-    "debug": "^4.1.1",
-    "execa": "^5.0.0",
-    "find-free-port-sync": "^1.0.0",
-    "fs-extra": "^9.1.0",
-    "looks-same": "^4.0.0",
-    "mime-types": "^2.1.35",
-    "ramda": "^0.31.3",
-    "shelljs": "^0.8.3",
-    "wait-port": "^1.1.0"
+    "looks-same": "^4.0.0"
   },
   "devDependencies": {
     "@types/chrome-remote-interface": "^0.33.0",
-    "@types/debug": "^4.1.12",
-    "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^29.5.0",
     "@types/node": "^24.5.2",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^27.5.1",

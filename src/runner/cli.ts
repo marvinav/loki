@@ -5,7 +5,7 @@ import {
   ChromeError,
   FetchingURLsError,
   unwrapError,
-} from './core/index.js';
+} from '../core/index.js';
 import { die, bold } from './console.js';
 
 import init from './commands/init/index.js';
@@ -43,23 +43,27 @@ export default async function run() {
   try {
     executor(args);
   } catch (rawError) {
-    const error = unwrapError(rawError);
+    const error = rawError instanceof Error ? unwrapError(rawError) : new Error(String(rawError));
 
     if (
       error instanceof MissingDependencyError ||
       error instanceof ServerError ||
-      error instanceof ChromeError ||
-      error instanceof FetchingURLsError
+      error instanceof ChromeError
     ) {
       die(error.message, error.instructions);
     }
 
+    if (error instanceof FetchingURLsError) {
+      die(error.message);
+    }
+
+    const errorWithCmd = error as Error & { cmd?: string; stderr?: string };
     const childProcessFailed =
-      error.cmd &&
-      error.stderr &&
+      errorWithCmd.cmd &&
+      errorWithCmd.stderr &&
       error.message.indexOf('Command failed: ') === 0;
     if (childProcessFailed) {
-      die(error.stderr);
+      die(errorWithCmd.stderr!);
     }
     die(error);
   }

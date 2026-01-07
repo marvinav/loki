@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fs from 'fs-extra';
-import createDebug from 'debug';
 import {
   disableAnimations,
   disableInputCaret,
@@ -18,11 +16,13 @@ import {
   TimeoutError,
   withTimeout,
   withRetries,
+  createLogger,
+  readJson,
 } from '../core/index.js';
 import presets from './presets.json' with { type: 'json' };
 import type CDP from 'chrome-remote-interface';
 
-const debug = createDebug('loki:chrome');
+const debug = createLogger('loki:chrome');
 
 const CAPTURING_SCREENSHOT_TIMEOUT = 30000;
 const CAPTURING_SCREENSHOT_RETRY_BACKOFF = 500;
@@ -71,9 +71,9 @@ interface StoryParameters {
 
 interface Story {
   id: string;
-  url: string;
-  kind?: string;
-  story?: string;
+  url?: string;
+  kind: string;
+  story: string;
   parameters?: StoryParameters;
 }
 
@@ -321,14 +321,7 @@ function createChromeTarget(
       }
     };
 
-    const captureScreenshot = withRetries(
-      options.chromeRetries ?? 0,
-      CAPTURING_SCREENSHOT_RETRY_BACKOFF
-    )(
-      withTimeout(
-        CAPTURING_SCREENSHOT_TIMEOUT,
-        'captureScreenshot'
-      )(async (selector = 'body'): Promise<Buffer> => {
+    const captureScreenshotInner = async (selector = 'body'): Promise<Buffer> => {
         debug(`Getting viewport position of "${selector}"`);
         const position = await getPositionInViewport(selector);
 
@@ -394,20 +387,29 @@ function createChromeTarget(
         }
 
         return buffer;
-      })
-    );
+    };
+
+    const captureScreenshotWithTimeout = withTimeout(
+      CAPTURING_SCREENSHOT_TIMEOUT,
+      'captureScreenshot'
+    )(captureScreenshotInner) as (selector?: string) => Promise<Buffer>;
+
+    const captureScreenshot = withRetries<[string?], Buffer>(
+      options.chromeRetries ?? 0,
+      CAPTURING_SCREENSHOT_RETRY_BACKOFF
+    )(captureScreenshotWithTimeout);
 
     return {...client, captureScreenshot, loadUrl, executeFunctionWithWindow};
   }
 
   const getStoryUrl = async (storyId: string): Promise<string | undefined> => {
-    const stories = await fs.readJson(storiesPath) as Story[];
+    const stories = await readJson<Story[]>(storiesPath);
     return stories.find((x) => x.id === storyId)?.url;
   };
 
   const getStorybook = async (): Promise<Story[]> => {
     try {
-      const stories = await fs.readJson(storiesPath) as Story[];
+      const stories = await readJson<Story[]>(storiesPath);
 
       if (!Array.isArray(stories)) {
         throw new Error('Stories file must contain an array of stories');
@@ -426,13 +428,13 @@ function createChromeTarget(
     storyId: string,
     options: Options,
     configuration: Configuration,
-    parameters: StoryParameters
+    parameters?: StoryParameters
   ): Promise<Buffer | undefined> {
     let tabOptions: TabOptions = {
       media: options.chromeEmulatedMedia,
       fetchFailIgnore: options.fetchFailIgnore,
       ...configuration,
-      ...(parameters.loki ?? {}),
+      ...(parameters?.loki ?? {}),
     } as TabOptions;
 
     if (configuration.preset) {
@@ -444,7 +446,7 @@ function createChromeTarget(
     }
 
     const selector =
-      parameters.loki?.chromeSelector ??
+      parameters?.loki?.chromeSelector ??
       configuration.chromeSelector ??
       options.chromeSelector;
 
@@ -453,8 +455,8 @@ function createChromeTarget(
     let screenshot: Buffer | undefined;
 
     try {
-      await withTimeout(options.chromeLoadTimeout)(tab.loadUrl!(url!, selector));
-      screenshot = await tab.captureScreenshot!(selector);
+      await withTimeout(options.chromeLoadTimeout ?? 60000)(tab.loadUrl!(url!, selector));
+      screenshot = await tab.captureScreenshot!(selector) as Buffer;
     } catch (err) {
       if (err instanceof TimeoutError) {
         debug(`Timed out waiting for "${url}" to load`);

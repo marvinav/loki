@@ -1,7 +1,7 @@
 [
     {
         "id": "32",
-        "url": "file:/./test/iframe.html",
+        "url": "file:///home/marvinav/Source/oblador/loki/test/iframe.html",
         "kind": "ds",
         "story": "re",
         "parameters": {}

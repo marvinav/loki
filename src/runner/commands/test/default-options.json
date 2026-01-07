@@ -1,10 +1,5 @@
 {
-  "chromeAwsLambdaFunctionName": "loki",
-  "chromeAwsLambdaRetries": "0",
-  "chromeAwsLambdaBatchSize": "1",
-  "chromeAwsLambdaBatchConcurrency": "1",
   "chromeConcurrency": "4",
-  "chromeDockerImage": "yukinying/chrome-headless-browser-stable:118.0.5993.117",
   "chromeFlags": "--headless --disable-gpu --hide-scrollbars",
   "chromeLoadTimeout": "60000",
   "chromeRetries": "0",
@@ -16,7 +11,6 @@
   "reference": "./.loki/reference",
   "diffOnly": false,
   "reactPort": "6006",
-  "reactNativePort": "7007",
   "pixelmatch": {},
   "looksSame": {},
   "gm": {}

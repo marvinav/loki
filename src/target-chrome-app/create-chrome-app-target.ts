@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import createDebug from 'debug';
 import chromeLauncher from 'chrome-launcher';
 import CDP from 'chrome-remote-interface';
 import getRandomPort from './find-free-port-sync.js';
@@ -7,10 +6,11 @@ import {
   getAbsoluteURL,
   getLocalIPAddress,
   createStaticServer,
+  createLogger,
 } from '../core/index.js';
 import { createChromeTarget } from '../target-chrome-core/index.js';
 
-const debug = createDebug('loki:chrome:app');
+const debug = createLogger('loki:chrome:app');
 
 interface StaticServerConfig {
   chromeUrl: string;
