@@ -8,6 +8,7 @@
     "loki": "bin/loki"
   },
   "scripts": {
+    "build": "tsc",
     "format": "prettier '{,packages/**/,examples/**/,website/**/,docs/**/,test/**/,.github/**/}*.{md,js,jsx,json,yml}' --write",
     "lint": "eslint packages/*/src",
     "test": "node ./dist/index.js --reactUri file:./test",
@@ -48,6 +49,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@types/chrome-remote-interface": "^0.33.0",
     "@types/jest": "^29.5.0",
+    "@types/minimist": "^1.2.5",
     "@types/node": "^24.5.2",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^27.5.1",
@@ -73,7 +75,8 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/examples/",
-      "/test/cli/generated/"
+      "/test/cli/generated/",
+      "/dist/"
     ],
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"
