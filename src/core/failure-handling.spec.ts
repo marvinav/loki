@@ -25,22 +25,18 @@ describe('withRetries', () => {
   });
 
   it('pauses between each attempt when passing backoff argument', async () => {
-    jest.useFakeTimers();
     const mockFn = jest.fn(async () => {
       throw new Error('output');
     });
-    const retriedMockFn = withRetries(3, 100)(mockFn);
-    const outputPromise = retriedMockFn('input');
+    const retriedMockFn = withRetries(3, 10)(mockFn);
 
-    // Run through all timers and ticks
-    for (let i = 0; i < 3; i++) {
-      jest.advanceTimersByTime(100);
-      await Promise.resolve();
-    }
+    const startTime = Date.now();
+    await expect(retriedMockFn('input')).rejects.toThrow('output');
+    const endTime = Date.now();
 
-    await expect(outputPromise).rejects.toThrow('output');
+    // Should have paused 3 times (after first 3 attempts, not after the last one)
+    // With 10ms backoff, total time should be at least 30ms
+    expect(endTime - startTime).toBeGreaterThanOrEqual(25);
     expect(mockFn).toHaveBeenCalledTimes(4);
-
-    jest.useRealTimers();
   });
 });
