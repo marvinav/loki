@@ -18,7 +18,10 @@ import {
   withRetries,
   createLogger,
   readJson,
+  isStoryLocal,
+  isStoryNetwork,
 } from '../core/index.js';
+import type { Story, StoryLocal, StoryNetwork } from '../core/index.js';
 import presets from './presets.json' with { type: 'json' };
 import type CDP from 'chrome-remote-interface';
 
@@ -67,14 +70,6 @@ interface StoryParameters {
     [key: string]: unknown;
   };
   [key: string]: unknown;
-}
-
-interface Story {
-  id: string;
-  url?: string;
-  kind: string;
-  story: string;
-  parameters?: StoryParameters;
 }
 
 interface Configuration {
@@ -404,7 +399,22 @@ function createChromeTarget(
 
   const getStoryUrl = async (storyId: string): Promise<string | undefined> => {
     const stories = await readJson<Story[]>(storiesPath);
-    return stories.find((x) => x.id === storyId)?.url;
+    const story = stories.find((x) => x.id === storyId);
+
+    if (!story) {
+      return undefined;
+    }
+
+    if (isStoryLocal(story)) {
+      // Construct file:// URL from baseDir and staticPath
+      return `file://${story.baseDir}${story.staticPath}`;
+    }
+
+    if (isStoryNetwork(story)) {
+      return story.url;
+    }
+
+    return undefined;
   };
 
   const getStorybook = async (): Promise<Story[]> => {

@@ -1,9 +1,10 @@
 [
     {
         "id": "32",
-        "url": "file:///home/marvinav/Source/oblador/loki/test/iframe.html",
         "kind": "ds",
         "story": "re",
+        "baseDir": "/home/marvinav/Source/oblador/loki/test",
+        "staticPath": "/iframe.html",
         "parameters": {}
     }
 ]

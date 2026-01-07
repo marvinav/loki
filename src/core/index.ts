@@ -70,3 +70,16 @@ export { commandExists, hasCommand } from './command-exists.js';
 
 // Concurrency
 export { eachOfLimit, mapLimit, processBatches } from './concurrent.js';
+
+// Types
+export type {
+  Story,
+  StoryBase,
+  StoryLocal,
+  StoryNetwork,
+  StoryParameters,
+  LokiParameters,
+  StoriesJson,
+} from './types.js';
+
+export { isStoryLocal, isStoryNetwork } from './types.js';
