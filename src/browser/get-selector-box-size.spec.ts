@@ -33,7 +33,7 @@ const addElementsToWrapper = (
   rects.forEach(({ x, y, width, height, style }) => {
     const element = document.createElement('div');
     element.getBoundingClientRect = jest.fn(
-      () => new DOMRect(x, y, width, height)
+      () => ({ x, y, width, height, top: y, right: x + width, bottom: y + height, left: x, toJSON: () => ({}) })
     );
     Object.assign(element.style, { padding: '0px', margin: '0px' }, style, {
       width: `${width}px`,
@@ -161,7 +161,7 @@ describe('getSelectorBoxSize', () => {
       const wrapper = document.createElement('div');
       wrapper.setAttribute('class', 'wrapper');
       wrapper.getBoundingClientRect = jest.fn(
-        () => new DOMRect(0, 0, 1000, 1000)
+        () => ({ x: 0, y: 0, width: 1000, height: 1000, top: 0, right: 1000, bottom: 1000, left: 0, toJSON: () => ({}) })
       );
       root.appendChild(wrapper);
       return wrapper;

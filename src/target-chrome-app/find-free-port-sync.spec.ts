@@ -1,11 +1,10 @@
 import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+
+jest.mock('child_process');
+
 import { execSync } from 'child_process';
 
-jest.mock('child_process', () => ({
-  execSync: jest.fn(),
-}));
-
-const mockedExecSync = execSync as ReturnType<typeof jest.fn>;
+const mockedExecSync = execSync as jest.MockedFunction<typeof execSync>;
 
 // Import after mocking
 import findFreePortSync from './find-free-port-sync.js';

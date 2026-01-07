@@ -9,7 +9,7 @@ describe('ChromeError', () => {
 describe('serializeError', () => {
   it('serializes unknown error types as Error', () => {
     expect(serializeError(new Error('lol'))).toMatchInlineSnapshot(
-      `"{"isSerializedError":true,"type":"Error","args":["lol"]}"`
+      `"{\\"isSerializedError\\":true,\\"type\\":\\"Error\\",\\"args\\":[\\"lol\\"]}"`
     );
   });
 
@@ -17,7 +17,7 @@ describe('serializeError', () => {
     expect(
       serializeError(new ChromeError('lol', 'dont do that'))
     ).toMatchInlineSnapshot(
-      `"{"isSerializedError":true,"type":"ChromeError","args":["lol","dont do that"]}"`
+      `"{\\"isSerializedError\\":true,\\"type\\":\\"ChromeError\\",\\"args\\":[\\"lol\\",\\"dont do that\\"]}"`
     );
   });
 });
