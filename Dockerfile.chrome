@@ -1,0 +1,28 @@
+# Chrome container for Loki visual testing
+# Usage:
+#   docker build -f Dockerfile.chrome -t loki-chrome .
+#
+#   # Run container (--add-host flag required for Linux, harmless on macOS/Windows)
+#   docker run -d -p 9222:9222 --shm-size=2g \
+#     --add-host=host.docker.internal:host-gateway \
+#     loki-chrome
+#
+#   # Run tests
+#   node dist/index.js --stories=test/stories.json \
+#     --chromeHost=localhost --chromePort=9222 \
+#     --staticServerHost=host.docker.internal
+
+FROM zenika/alpine-chrome:latest
+
+EXPOSE 9222
+
+ENTRYPOINT ["chromium-browser", \
+    "--headless", \
+    "--disable-gpu", \
+    "--disable-software-rasterizer", \
+    "--disable-dev-shm-usage", \
+    "--no-sandbox", \
+    "--remote-debugging-address=0.0.0.0", \
+    "--remote-debugging-port=9222", \
+    "--hide-scrollbars", \
+    "about:blank"]
