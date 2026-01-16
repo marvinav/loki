@@ -12,6 +12,7 @@
     "format": "prettier '{,packages/**/,examples/**/,website/**/,docs/**/,test/**/,.github/**/}*.{md,js,jsx,json,yml}' --write",
     "lint": "eslint packages/*/src",
     "test": "node ./dist/index.js --reactUri file:./test",
+    "test:stories": "tsc && node dist/index.js --stories=test/stories.json",
     "test-ci": "jest --testLocationInResults --ci --outputFile=test_results.json --json",
     "publish-docs": "GIT_USER=oblador yarn workspace @loki/website publish-gh-pages"
   },

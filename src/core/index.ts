@@ -28,6 +28,7 @@ export { getLocalIPAddress } from './get-local-ip-address.js';
 
 // Static server
 export { createStaticServer } from './create-static-server.js';
+export { StaticServerManager, createStaticServerManager } from './static-server-manager.js';
 
 // File system utilities
 export {

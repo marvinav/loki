@@ -20,8 +20,9 @@ import {
   readJson,
   isStoryLocal,
   isStoryNetwork,
+  createStaticServerManager,
 } from '../core/index.js';
-import type { Story, StoryLocal, StoryNetwork } from '../core/index.js';
+import type { Story, StoryLocal, StoryNetwork, StaticServerManager } from '../core/index.js';
 import presets from './presets.json' with { type: 'json' };
 import type CDP from 'chrome-remote-interface';
 
@@ -129,8 +130,12 @@ function createChromeTarget(
   stop: StopFunction,
   createNewDebuggerInstance: CreateDebuggerFunction,
   prepare: PrepareFunction,
-  storiesPath: string
+  storiesPath: string,
+  staticServerHost = 'localhost'
 ) {
+  // Static server manager for serving local stories via HTTP
+  const staticServerManager = createStaticServerManager(staticServerHost);
+
   function getDeviceMetrics(options: TabOptions): DeviceMetrics {
     return {
       width: options.width,
@@ -406,8 +411,9 @@ function createChromeTarget(
     }
 
     if (isStoryLocal(story)) {
-      // Construct file:// URL from baseDir and staticPath
-      return `file://${story.baseDir}${story.staticPath}`;
+      // Get or create a static server for the baseDir and construct HTTP URL
+      const baseUrl = await staticServerManager.getServerUrl(story.baseDir);
+      return `${baseUrl}${story.staticPath}`;
     }
 
     if (isStoryNetwork(story)) {
@@ -480,9 +486,15 @@ function createChromeTarget(
     return screenshot;
   }
 
+  // Wrap stop to also stop static servers
+  const stopWithServers = async (): Promise<void> => {
+    await staticServerManager.stopAll();
+    await stop();
+  };
+
   return {
     start,
-    stop,
+    stop: stopWithServers,
     prepare,
     getStorybook,
     captureScreenshotForStory,

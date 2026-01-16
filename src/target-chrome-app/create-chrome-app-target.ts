@@ -25,6 +25,9 @@ interface ChromeAppTargetOptions {
   chromeFlags?: string[];
   cdpOptions?: Record<string, unknown>;
   storiesPath: string;
+  chromeHost?: string;
+  chromePort?: number;
+  staticServerHost?: string;
 }
 
 interface ChromeInstance {
@@ -76,14 +79,33 @@ function createChromeAppTarget({
   chromeFlags = ['--disable-gpu', '--hide-scrollbars'],
   cdpOptions = {},
   storiesPath,
+  chromeHost,
+  chromePort,
+  staticServerHost = 'localhost',
 }: ChromeAppTargetOptions) {
+  const isRemote = chromeHost !== undefined && chromePort !== undefined;
+
   let instance: ChromeInstance | undefined;
   let staticServer: StaticServer | undefined;
-  console.log(baseUrl);
-  const { chromeUrl, isLocalFile, staticServerPath, staticServerPort } =
-    getStaticServerConfig(baseUrl);
 
-    async function start(options: Record<string, unknown> = {}): Promise<void> {
+  // For remote Chrome, we don't need static server config
+  const { chromeUrl, isLocalFile, staticServerPath, staticServerPort } = isRemote
+    ? { chromeUrl: '', isLocalFile: false, staticServerPath: undefined, staticServerPort: undefined }
+    : getStaticServerConfig(baseUrl);
+
+  async function start(options: Record<string, unknown> = {}): Promise<void> {
+    if (isRemote) {
+      debug(`Connecting to remote Chrome at ${chromeHost}:${chromePort}`);
+      // For remote Chrome, we just verify the connection works
+      try {
+        await CDP.Version({ host: chromeHost, port: chromePort });
+        debug('Successfully connected to remote Chrome');
+      } catch (err) {
+        throw new Error(`Failed to connect to remote Chrome at ${chromeHost}:${chromePort}: ${err}`);
+      }
+      return;
+    }
+
     if (useStaticServer && isLocalFile && staticServerPath && staticServerPort) {
       staticServer = createStaticServer(staticServerPath) as StaticServer;
       staticServer.listen(staticServerPort);
@@ -101,6 +123,11 @@ function createChromeAppTarget({
   }
 
   async function stop(): Promise<void> {
+    if (isRemote) {
+      debug('Remote Chrome - nothing to stop');
+      return;
+    }
+
     if (instance) {
       debug('Killing chrome');
       await instance.kill();
@@ -114,19 +141,22 @@ function createChromeAppTarget({
   }
 
   async function createNewDebuggerInstance(): Promise<CDP.Client> {
-    if (!instance) {
+    const port = isRemote ? chromePort! : instance?.port;
+    const host = isRemote ? chromeHost : 'localhost';
+
+    if (!port) {
       throw new Error('Chrome instance not started');
     }
-    const { port } = instance;
-    debug(`Launching new tab with debugger at port ${port}`);
-    const target = await CDP.New({ port });
+
+    debug(`Launching new tab with debugger at ${host}:${port}`);
+    const target = await CDP.New({ host, port });
     debug(`Launched with target id ${target.id}`);
 
-    const client = await CDP({ port, target, ...cdpOptions });
+    const client = await CDP({ host, port, target, ...cdpOptions });
 
     client.close = (): Promise<void> => {
       debug('Closing tab');
-      return CDP.Close({ port, id: target.id }) as Promise<void>;
+      return CDP.Close({ host, port, id: target.id }) as Promise<void>;
     };
 
     return client;
@@ -137,7 +167,8 @@ function createChromeAppTarget({
     stop,
     createNewDebuggerInstance,
     undefined,
-    storiesPath
+    storiesPath,
+    staticServerHost
   );
 }
 

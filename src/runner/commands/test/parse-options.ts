@@ -27,6 +27,9 @@ interface ParsedOptions {
   chromeSelector: string;
   chromeTolerance: number;
   chromeEmulatedMedia: string | undefined;
+  chromeHost: string | undefined;
+  chromePort: number | undefined;
+  staticServerHost: string;
   skipStoriesPattern: string | undefined;
   storiesFilter: string | undefined;
   diffingEngine: string;
@@ -72,6 +75,9 @@ function parseOptions(args: string[], config: Config): ParsedOptions {
     chromeSelector: $('chromeSelector') as string,
     chromeTolerance: parseFloat($('chromeTolerance') as string),
     chromeEmulatedMedia: $('chromeEmulatedMedia') as string | undefined,
+    chromeHost: $('chromeHost') as string | undefined,
+    chromePort: $('chromePort') ? parseInt($('chromePort') as string, 10) : undefined,
+    staticServerHost: ($('staticServerHost') as string) || 'localhost',
     skipStoriesPattern: $('skipStories') as string | undefined,
     storiesFilter: $('storiesFilter') as string | undefined,
     diffingEngine: ($('diffingEngine') as string) || 'looks-same',

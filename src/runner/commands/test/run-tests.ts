@@ -51,6 +51,9 @@ interface TestOptions extends CompareScreenshotOptions {
   chromeConcurrency: number;
   chromeTolerance: number;
   chromeFlags: string[];
+  chromeHost?: string;
+  chromePort?: number;
+  staticServerHost?: string;
   storiesJsonPath?: string;
   passWithNoStories?: boolean;
   skipStoriesPattern?: string;
@@ -275,6 +278,9 @@ async function runTests(
           target,
           createChromeAppTarget({
             chromeFlags: options.chromeFlags,
+            chromeHost: options.chromeHost,
+            chromePort: options.chromePort,
+            staticServerHost: options.staticServerHost,
             storiesPath: options.storiesJsonPath!,
           }),
           configurations,

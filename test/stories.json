@@ -6,5 +6,16 @@
         "baseDir": "/home/marvinav/Source/oblador/loki/test",
         "staticPath": "/iframe.html",
         "parameters": {}
+    },
+    {
+        "id": "man-page",
+        "kind": "linux",
+        "story": "man",
+        "url": "https://man7.org/linux/man-pages/man1/man.1.html",
+        "parameters": {
+            "loki": {
+                "chromeSelector": "body"
+            }
+        }
     }
 ]
